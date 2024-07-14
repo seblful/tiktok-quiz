@@ -47,12 +47,14 @@ class OpentdbAPIHandler:
 
                     # Delay for 5 seconds to avoid exceeding the rate limit
                     time.sleep(5)
-                else:
-                    print(f"Error: {data['response_message']}")
+
+                # Token Empty Session Token has returned all possible questions
+                elif data["response_code"] == 4:
                     break
-            elif response.status_code == 429:
-                print("Rate limit exceeded. Waiting for 10 seconds...")
-                time.sleep(10)
+
+                elif data["response_code"] == 5:
+                    print("Rate limit exceeded. Waiting for 10 seconds...")
+                    time.sleep(10)
             else:
                 print(f"Error: {response.status_code}")
                 break
@@ -64,7 +66,7 @@ class OpentdbAPIHandler:
     def save_json(self, q_type: str,  questions: str) -> None:
         # Save the questions to a JSON file
         json_path: str = os.path.join(
-            self.json_dir, f"data/trivia_questions_{q_type}.json")
+            self.json_dir, f"trivia_questions_{q_type}.json")
         with open(json_path, "w") as file:
             json.dump(questions, file, indent=2)
 
@@ -75,6 +77,13 @@ class QuizHandler:
     def __init__(self,
                  json_dir: str) -> None:
         self.json_dir = json_dir
+
+        # Indexes that was used before
+        self.multiple_idxs: List[int] = []
+        self.boolean_idxs: List[int] = []
+
+    def load_json(self, q_type: str):
+        pass
 
     def get_random_question(self):
         pass
