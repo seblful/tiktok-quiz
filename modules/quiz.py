@@ -1,16 +1,21 @@
 import os
 import json
-import requests
 import time
 import random
 
-from typing import List
+import requests
+import html
+
+from typing import List, Dict
 
 
 class OpentdbAPIHandler:
     def __init__(self,
                  json_dir: str) -> None:
         self.json_dir: str = json_dir
+
+        # Index
+        self.index: int = 0
 
     def download_questions(self, q_type: str, amount: int = 50) -> None:
         # Get token
@@ -25,9 +30,6 @@ class OpentdbAPIHandler:
         # Initialize an empty list to store the questions
         questions: List[int] = []
 
-        # Index
-        index: int = 0
-
         # Retrieve questions in batches of amount
         while True:
             # Make the API request
@@ -41,10 +43,8 @@ class OpentdbAPIHandler:
                 # Check if the API request was successful
                 if data['response_code'] == 0:
 
-                    # Add index to every item
-                    for i in range(len(data["results"])):
-                        data["results"][i]["index"] = index
-                        index += 1
+                    # Edit data
+                    data = self.edit_data(data=data)
 
                     # Add the questions to the list
                     questions.extend(data['results'])
@@ -72,6 +72,19 @@ class OpentdbAPIHandler:
         self.save_json(q_type=q_type,
                        questions=questions)
 
+    def edit_data(self, data: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        # Edit data
+        for i in range(len(data["results"])):
+            # Reformat text of the question
+            data["results"][i]['question'] = html.unescape(
+                data["results"][i]['question'])
+
+            # Add index
+            data["results"][i]['index'] = self.index
+            self.index += 1
+
+        return data
+
     def save_json(self, q_type: str,  questions: str) -> None:
         # Save the questions to a JSON file
         json_path: str = os.path.join(
@@ -85,14 +98,28 @@ class OpentdbAPIHandler:
 class QuizHandler:
     def __init__(self,
                  json_dir: str) -> None:
+        # Paths
         self.json_dir = json_dir
+        self.mult_q_path = os.path.join(
+            json_dir, "trivia_questions_multiple.json")
+        self.bool_q_path = os.path.join(
+            json_dir, "trivia_questions_boolean.json")
+
+        # JSONs
+        self.mult_q_dict = self.load_json(json_path=self.mult_q_path)
+        self.bool_q_dict = self.load_json(json_path=self.bool_q_path)
+
+        print(self.bool_q_dict)
 
         # Indexes that was used before
         self.multiple_idxs: List[int] = []
         self.boolean_idxs: List[int] = []
 
-    def load_json(self, q_type: str) -> None:
-        pass
+    def load_json(self, json_path: str) -> List[Dict[str, str]]:
+        with open(json_path, 'r') as file:
+            data = json.load(file)
+
+        return data
 
     def get_random_question(self, q_type: str) -> None:
         pass
