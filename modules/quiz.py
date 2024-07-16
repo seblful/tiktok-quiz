@@ -25,6 +25,9 @@ class OpentdbAPIHandler:
         # Initialize an empty list to store the questions
         questions: List[int] = []
 
+        # Index
+        index: int = 0
+
         # Retrieve questions in batches of amount
         while True:
             # Make the API request
@@ -37,6 +40,12 @@ class OpentdbAPIHandler:
 
                 # Check if the API request was successful
                 if data['response_code'] == 0:
+
+                    # Add index to every item
+                    for i in range(len(data["results"])):
+                        data["results"][i]["index"] = index
+                        index += 1
+
                     # Add the questions to the list
                     questions.extend(data['results'])
                     print(f"It was downloaded {len(questions)} questions.")
@@ -82,8 +91,8 @@ class QuizHandler:
         self.multiple_idxs: List[int] = []
         self.boolean_idxs: List[int] = []
 
-    def load_json(self, q_type: str):
+    def load_json(self, q_type: str) -> None:
         pass
 
-    def get_random_question(self):
+    def get_random_question(self, q_type: str) -> None:
         pass
