@@ -59,11 +59,12 @@ class OpentdbAPIHandler:
 
                 # Token Empty Session Token has returned all possible questions
                 elif data["response_code"] == 4:
+                    time.sleep(60)
                     break
 
                 elif data["response_code"] == 5:
                     print("Rate limit exceeded. Waiting for 10 seconds...")
-                    time.sleep(10)
+                    time.sleep(60)
             else:
                 print(f"Error: {response.status_code}")
                 break
