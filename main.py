@@ -7,10 +7,15 @@ DATA_DIR = os.path.join(HOME, 'data')
 
 
 def main() -> None:
-    api_handler = OpentdbAPIHandler(json_dir=DATA_DIR)
-    quiz_handler = QuizHandler(json_dir=DATA_DIR)
+    # # Download questions
+    # api_handler = OpentdbAPIHandler(json_dir=DATA_DIR)
+    # api_handler.download_questions(q_type="multiple")
+    # api_handler.download_questions(q_type="boolean")
 
-    api_handler.download_questions(q_type="multiple")
+    # Get question
+    quiz_handler = QuizHandler(json_dir=DATA_DIR)
+    question = quiz_handler.get_random_question(q_type="multiple")
+    print(question)
 
 
 if __name__ == "__main__":
