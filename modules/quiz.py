@@ -75,9 +75,17 @@ class OpentdbAPIHandler:
     def edit_data(self, data: List[Dict[str, str]]) -> List[Dict[str, str]]:
         # Edit data
         for i in range(len(data["results"])):
-            # Reformat text of the question
+            # Reformat text of the questions and answers
+            # Question
             data["results"][i]['question'] = html.unescape(
                 data["results"][i]['question'])
+            # Correct answer
+            data["results"][i]["correct_answer"] = html.unescape(
+                data["results"][i]["correct_answer"])
+            # Incorrect answers
+            for j in range(len(data["results"][i]["incorrect_answers"])):
+                data["results"][i]["incorrect_answers"][j] = html.unescape(
+                    data["results"][i]["incorrect_answers"][j])
 
             # Add index
             data["results"][i]['index'] = self.index
