@@ -1,6 +1,6 @@
 # Custom
-draft.py
-draft.ipynb
+draft*.py
+draft*.ipynb
 
 # Data
 data
