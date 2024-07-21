@@ -56,26 +56,36 @@ class GameCreator:
 
         self.running = True
 
-    def create_shapes(self, n: int = 5) -> None:
+    def create_shapes(self, even_rows: int = 5) -> None:
         self.shapes = []
         padding = 20
-        # Free zone without margins and shapes
-        available_space = (self.screen_height - 2 *
-                           padding) - (n * self.shape_size)
-        # Length between shapes
-        shape_interval = available_space / (n - 1)
+        available_space_x = self.screen_width - 2 * padding
+        available_space_y = self.screen_height - 2 * padding
 
-        # Create positions of y
-        y_poss = [padding + i * (self.shape_size + shape_interval)
-                  for i in range(n)]
+        # Calculate number of columns (n)
+        n = 4  # You can adjust this if needed
 
-        # Create shapes
-        for y in y_poss:
-            shape = Shape(x=0, y=y,
-                          color=self.bckg_colors[self.bckg_idx % len(
-                              self.bckg_colors)],
-                          size=self.shape_size)
-            self.shapes.append(shape)
+        # Calculate intervals
+        shape_interval_x = available_space_x / (n - 1)
+        shape_interval_y = (available_space_y - even_rows *
+                            self.shape_size) / (even_rows - 1)
+
+        for j in range(n):
+            rows = even_rows if j % 2 == 0 else even_rows - 1
+            for i in range(rows):
+                if j % 2 == 0:  # Even columns (0, 2)
+                    row_y = padding + i * (self.shape_size + shape_interval_y)
+                else:  # Odd columns (1, 3)
+                    row_y = padding + (i + 0.5) * \
+                        (self.shape_size + shape_interval_y)
+
+                row_x = padding + j * shape_interval_x - self.shape_size  # Start offscreen
+
+                shape = Shape(x=row_x, y=row_y,
+                              color=self.bckg_colors[self.bckg_idx % len(
+                                  self.bckg_colors)],
+                              size=self.shape_size)
+                self.shapes.append(shape)
 
     def run(self):
         while self.running is True:
@@ -114,7 +124,7 @@ class Shape:
                  y: int,
                  color: Tuple[int, int, int],
                  size: int,
-                 speed: int = 5
+                 speed: float = 3.0
                  ) -> None:
         self.x = x
         self.y = y
@@ -128,7 +138,7 @@ class Shape:
     def move(self, width, height) -> None:
         self.x += self.speed
         if self.x > width:
-            self.x = 0
+            self.x = -self.size
 
     def draw(self, surface) -> None:
         pygame.draw.rect(surface, self.color,
