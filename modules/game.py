@@ -31,7 +31,8 @@ class GameCreator:
 
         # Screen
         self.screen = pygame.display.set_mode(frame_size)
-        self.background = Background(frame_size)
+        self.background = Background(source_dir=source_dir,
+                                     screen_size=frame_size)
         self.setup_display(source_dir)
 
         # Running

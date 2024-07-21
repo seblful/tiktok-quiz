@@ -32,7 +32,7 @@ class Background:
         self.padding = padding
         self.create_shapes()
 
-    def load_image(self):
+    def load_image(self) -> pygame.Surface:
         image = pygame.image.load(os.path.join(
             self.icons_dir, random.choice(self.icons_listdir))).convert_alpha()
         image = pygame.transform.scale(
@@ -41,8 +41,6 @@ class Background:
         return image
 
     def create_shapes(self, even_rows: int = 5, columns: int = 4) -> None:
-        # Clear list of shapes
-        self.shapes.clear()
 
         # Load icon for shape and preprocess it
         shape_image = self.load_image()
@@ -55,6 +53,7 @@ class Background:
         shape_interval_y = (available_space_y - even_rows *
                             self.shape_size) / (even_rows - 1)
 
+        # Iterate through cols and rows and calculate positions
         for col in range(columns):
             rows = even_rows if col % 2 == 0 else even_rows - 1
             for row in range(rows):
@@ -62,6 +61,7 @@ class Background:
                     (self.shape_size + shape_interval_y)
                 x = self.padding + col * shape_interval_x - self.shape_size  # Start offscreen
 
+                # Create shapes
                 shape = Shape(x=x,
                               y=y,
                               base_image=shape_image,
@@ -95,10 +95,11 @@ class Shape:
     def __init__(self,
                  x: int,
                  y: int,
-                 base_image,
+                 base_image: pygame.Surface,
                  base_color: Tuple[int, int, int],
                  size: int,
                  speed: float = 2) -> None:
+
         # Coordinates
         self.x = x
         self.y = y
@@ -115,8 +116,6 @@ class Shape:
         self.size = size
         self.speed = speed
 
-        self.update_image_color(base_image)
-
     @property
     def color(self) -> Tuple[int, int, int]:
         if self.__color is None:
@@ -131,15 +130,17 @@ class Shape:
     @property
     def image(self):
         if self.__image is None:
-            self.__image = self.update_image_color(self.base_image)
+            self.__image = self.update_image_color(self.base_image, self.color)
 
         return self.__image
 
     @image.setter
     def image(self, value) -> None:
-        self.__image = self.update_image_color(value)
+        self.__image = self.update_image_color(value, self.color)
 
-    def update_image_color(self, image) -> pygame.Surface:
+    @staticmethod
+    def update_image_color(image: pygame.Surface,
+                           color: Tuple[int, int, int]) -> pygame.Surface:
         # Get the size of the image
         width, height = image.get_size()
 
@@ -156,7 +157,7 @@ class Shape:
                 if pixel.a != 0:
                     # Change the pixel to the new color while keeping the alpha
                     new_image.set_at(
-                        (x, y), (*self.color, pixel.a))
+                        (x, y), (*color, pixel.a))
                 else:
                     # Keep the pixel transparent
                     new_image.set_at((x, y), pixel)
@@ -165,7 +166,7 @@ class Shape:
 
     @staticmethod
     def increase_brightness(color: Tuple[int, int, int],
-                            factor: float = 1.1) -> Tuple[int, int, int]:
+                            factor: float = 1.2) -> Tuple[int, int, int]:
         return tuple(min(255, int(c * factor)) for c in color)
 
     def move(self, width: int) -> None:
