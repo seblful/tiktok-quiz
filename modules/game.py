@@ -62,14 +62,26 @@ class Shape:
     def __init__(self,
                  x: int,
                  y: int,
-                 color: Tuple[int, int, int],
+                 base_color: Tuple[int, int, int],
                  size: int,
                  speed: float = 2.0) -> None:
         self.x = x
         self.y = y
         self.speed = speed
-        self.color = self.increase_brightness(color)
+        self.base_color = base_color
+        self.__color = None
         self.size = size
+
+    @property
+    def color(self) -> Tuple[int, int, int]:
+        if self.__color is None:
+            self.__color = self.increase_brightness(self.base_color)
+
+        return self.__color
+
+    @color.setter
+    def color(self, value: Tuple[int, int, int]) -> None:
+        self.__color = self.increase_brightness(value)
 
     @staticmethod
     def increase_brightness(color: Tuple[int, int, int],
