@@ -1,121 +1,61 @@
-from typing import Tuple
-
+from typing import Tuple, List
 import os
-import random
-
 import pygame
-import pygame.locals
-
 from .quiz import QuizHandler
 
 
-class GameCreator:
+class Background:
     def __init__(self,
-                 json_dir: str,
-                 source_dir: str,
-                 frame_size: Tuple[int, int] = (
-                     360, 640),
-                 fps: int = 60,
-                 shape_size: int = 50) -> None:
-
-        # Paths
-        self.json_dir = json_dir
-        self.source_dir = source_dir
-
-        # Game mods
-        self.game_mods = ("topic", "question", "answer")
-        self.mode_durs = (1, 3, 2)  # (120, 300, 60)  # Duration  of game mods
-        self.mode_idx = 0
-
-        # Questions
-        self.quiz_handler = QuizHandler(json_dir=json_dir)
-
-        # Video
-        self.frame_size = frame_size
-        self.fps = fps
-
-        # Screen
-        self.screen = pygame.display.set_mode(frame_size)
-        self.screen_width = frame_size[0]
-        self.screen_height = frame_size[1]
-
-        # Background
-        self.bckg_surface = pygame.Surface(frame_size)
-        self.bckg_colors = ((255, 190, 11), (251, 86, 7),
-                            (255, 0, 110), (131, 56, 236), (58, 134, 255))
-        self.bckg_idx = 0
-        # Create blank list to store shapes
-        self.shapes = []
+                 screen_size: Tuple[int, int],
+                 shape_size: int = 50,
+                 padding: int = 20) -> None:
+        self.screen_width, self.screen_height = screen_size
+        self.surface = pygame.Surface(screen_size)
+        self.colors = ((255, 190, 11), (251, 86, 7),
+                       (255, 0, 110), (131, 56, 236), (58, 134, 255))
+        self.color_index = 0
+        self.shapes: List[Shape] = []
         self.shape_size = shape_size
+        self.padding = padding
         self.create_shapes()
 
-        # Caption and icon
-        pygame.display.set_caption("LiveQuizMaster")
-        icon = pygame.image.load(os.path.join(source_dir, "icon.png"))
-        pygame.display.set_icon(icon)
+    def create_shapes(self, even_rows: int = 5, columns: int = 4) -> None:
+        self.shapes.clear()
+        available_space_x = self.screen_width - 2 * self.padding
+        available_space_y = self.screen_height - 2 * self.padding
 
-        self.running = True
-
-    def create_shapes(self, even_rows: int = 5) -> None:
-        self.shapes = []
-        padding = 20
-        available_space_x = self.screen_width - 2 * padding
-        available_space_y = self.screen_height - 2 * padding
-
-        # Calculate number of columns (n)
-        n = 4  # You can adjust this if needed
-
-        # Calculate intervals
-        shape_interval_x = available_space_x / (n - 1)
+        shape_interval_x = available_space_x / (columns - 1)
         shape_interval_y = (available_space_y - even_rows *
                             self.shape_size) / (even_rows - 1)
 
-        for j in range(n):
-            rows = even_rows if j % 2 == 0 else even_rows - 1
-            for i in range(rows):
-                if j % 2 == 0:  # Even columns (0, 2)
-                    row_y = padding + i * (self.shape_size + shape_interval_y)
-                else:  # Odd columns (1, 3)
-                    row_y = padding + (i + 0.5) * \
-                        (self.shape_size + shape_interval_y)
+        for col in range(columns):
+            rows = even_rows if col % 2 == 0 else even_rows - 1
+            for row in range(rows):
+                y = self.padding + (row if col % 2 == 0 else row + 0.5) * \
+                    (self.shape_size + shape_interval_y)
+                x = self.padding + col * shape_interval_x - self.shape_size  # Start offscreen
 
-                row_x = padding + j * shape_interval_x - self.shape_size  # Start offscreen
-
-                shape = Shape(x=row_x, y=row_y,
-                              color=self.bckg_colors[self.bckg_idx % len(
-                                  self.bckg_colors)],
-                              size=self.shape_size)
+                shape = Shape(x, y, self.colors[self.color_index % len(
+                    self.colors)], self.shape_size)
                 self.shapes.append(shape)
 
-    def run(self):
-        while self.running is True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
+    def render(self, screen: pygame.Surface, fps: int) -> None:
+        self.surface.fill(self.colors[self.color_index % len(self.colors)])
 
-            # Render background
-            self.render_background()
-
-    def render_background(self) -> None:
-        # Fill background with the color
-        self.bckg_surface.fill(
-            self.bckg_colors[self.bckg_idx % len(self.bckg_colors)])
-
-        # Move and draw each shape
         for shape in self.shapes:
-            shape.move(width=self.screen_width, height=self.screen_height)
-            shape.draw(surface=self.bckg_surface)
+            shape.move(self.screen_width)
+            shape.draw(self.surface)
 
-        # Update the screen
-        # Blit the background surface onto the screen
-        self.screen.blit(self.bckg_surface, (0, 0))
+        screen.blit(self.surface, (0, 0))
         pygame.display.flip()
-        pygame.time.Clock().tick(self.fps)
+        pygame.time.Clock().tick(fps)
 
-        # Change background color after some time
-        if pygame.time.get_ticks() % (sum(self.mode_durs) * 1000) < self.fps:  # Change every round
-            self.bckg_idx += 1
-            self.create_shapes()
+    def update_color(self) -> None:
+        self.color_index += 1
+
+        for shape in self.shapes:
+            shape.color = shape.increase_brightness(
+                color=self.colors[self.color_index % len(self.colors)])
 
 
 class Shape:
@@ -124,22 +64,69 @@ class Shape:
                  y: int,
                  color: Tuple[int, int, int],
                  size: int,
-                 speed: float = 3.0
-                 ) -> None:
+                 speed: float = 2.0) -> None:
         self.x = x
         self.y = y
         self.speed = speed
-        self.color = self.increase_brightness(color=color, factor=1.2)
+        self.color = self.increase_brightness(color)
         self.size = size
 
-    def increase_brightness(self, color, factor) -> Tuple[int]:
+    @staticmethod
+    def increase_brightness(color: Tuple[int, int, int],
+                            factor: float = 1.1) -> Tuple[int, int, int]:
         return tuple(min(255, int(c * factor)) for c in color)
 
-    def move(self, width, height) -> None:
+    def move(self, width: int) -> None:
         self.x += self.speed
         if self.x > width:
             self.x = -self.size
 
-    def draw(self, surface) -> None:
+    def draw(self, surface: pygame.Surface) -> None:
         pygame.draw.rect(surface, self.color,
                          (self.x, self.y, self.size, self.size))
+
+
+class GameCreator:
+    def __init__(self, json_dir: str,
+                 source_dir: str,
+                 frame_size: Tuple[int, int] = (360, 640),
+                 fps: int = 60) -> None:
+        # Paths
+        self.json_dir = json_dir
+        self.source_dir = source_dir
+
+        # Game mods
+        self.game_modes = ("topic", "question", "answer")
+        # (120, 300, 60)  # Duration  of game mods in secondss
+        self.mode_durations = (1, 3, 2)
+        self.mode_index = 0
+
+        # Questions
+        self.quiz_handler = QuizHandler(json_dir)
+
+        # Video
+        self.fps = fps
+
+        # Screen
+        self.screen = pygame.display.set_mode(frame_size)
+        self.background = Background(frame_size)
+        self.setup_display(source_dir)
+
+        # Running
+        self.running = True
+
+    def setup_display(self, source_dir: str) -> None:
+        pygame.display.set_caption("LiveQuizMaster")
+        icon = pygame.image.load(os.path.join(source_dir, "icon.png"))
+        pygame.display.set_icon(icon)
+
+    def run(self) -> None:
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            self.background.render(self.screen, self.fps)
+
+            if pygame.time.get_ticks() % (sum(self.mode_durations) * 1000) < self.fps:
+                self.background.update_color()
