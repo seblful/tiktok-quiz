@@ -78,7 +78,6 @@ class Background:
             shape.draw(self.surface)
 
         screen.blit(self.surface, (0, 0))
-        pygame.display.flip()
         pygame.time.Clock().tick(fps)
 
     def update_color(self) -> None:
