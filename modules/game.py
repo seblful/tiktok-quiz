@@ -54,8 +54,9 @@ class GameCreator:
             os.path.join(self.font_dir, "Zain-Regular.ttf"), 32)
         self.name_surface = name_font.render(
             "@livequizmaster", True, (220, 220, 220))
+        self.name_surface = pygame.transform.rotate(self.name_surface, 90)
         self.name_coord = self.name_surface.get_rect(
-            center=(self.frame_size[0] // 2, self.frame_size[1] * 0.96))
+            center=(self.frame_size[0] * 0.95, self.frame_size[1] * 0.8))
 
     def run(self) -> None:
         while self.running:
