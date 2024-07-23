@@ -1,7 +1,8 @@
 import os
 import time
 
-from modules.quiz import OpentdbAPIHandler, QuizGetter
+from modules.opentdb import OpentdbAPIHandler
+from modules.quiz import QuizGetter
 from modules.game import GameCreator
 
 HOME = os.getcwd()
