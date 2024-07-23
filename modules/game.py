@@ -38,7 +38,7 @@ class GameCreator:
 
         # Text
         pygame.font.init()
-        self.setup_name()
+        self.setup_name(position="horizontal")
 
         # Running
         self.running = True
@@ -49,14 +49,23 @@ class GameCreator:
         icon = pygame.image.load(os.path.join(source_dir, "icon.png"))
         pygame.display.set_icon(icon)
 
-    def setup_name(self):
+    def setup_name(self, position="horizontal"):
+        assert position in [
+            'vertical', 'horizontal'], "Position must be one of ['vertical', 'horizontal']."
         name_font = pygame.font.Font(
-            os.path.join(self.font_dir, "Zain-Regular.ttf"), 32)
+            os.path.join(self.font_dir, "Zain-Regular.ttf"), 26)
         self.name_surface = name_font.render(
             "@livequizmaster", True, (220, 220, 220))
-        self.name_surface = pygame.transform.rotate(self.name_surface, 90)
-        self.name_coord = self.name_surface.get_rect(
-            center=(self.frame_size[0] * 0.95, self.frame_size[1] * 0.8))
+        self.name_surface.set_alpha(150)
+
+        # Set coordinates of text
+        if position == "horizontal":
+            self.name_coord = self.name_surface.get_rect(
+                center=(self.frame_size[0] * 0.76, self.frame_size[1] * 0.97))
+        else:
+            self.name_surface = pygame.transform.rotate(self.name_surface, 90)
+            self.name_coord = self.name_surface.get_rect(
+                center=(self.frame_size[0] * 0.95, self.frame_size[1] * 0.87))
 
     def run(self) -> None:
         while self.running:
@@ -68,7 +77,8 @@ class GameCreator:
             self.background.render(self.screen, self.fps)
 
             # Name of app
-            self.screen.blit(self.name_surface, self.name_coord)
+            self.screen.blit(self.name_surface,
+                             self.name_coord)
 
             # Flip display
             pygame.display.flip()
