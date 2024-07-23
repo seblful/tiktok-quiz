@@ -6,6 +6,51 @@ import random
 import pygame
 
 
+class Mention:
+    def __init__(self,
+                 screen_size: Tuple[int, int],
+                 font_dir: str,
+                 text: str = '@livequizmaster',
+                 position: str = 'horizontal',
+                 color: Tuple[int, int, int] = (220, 220, 220),
+                 font_name: str = "Zain-Regular.ttf",
+                 font_size: str = 26) -> None:
+        # Screen
+        self.screen_size = screen_size
+
+        # Init text, color
+        self.text = text
+        self.color = color
+
+        # Create font
+        self.font = pygame.font.Font(
+            os.path.join(font_dir, font_name), font_size)
+
+        # Setup surface
+        self.setup_surface(position=position)
+
+    def setup_surface(self, position: str) -> None:
+        assert position in [
+            'vertical', 'horizontal'], "Position must be one of ['vertical', 'horizontal']."
+
+        # Create surface
+        self.surface = self.font.render(self.text, True, self.color)
+        self.surface.set_alpha(150)
+
+        # Set coordinates of text
+        if position == "horizontal":
+            self.coordinates = self.surface.get_rect(
+                center=(self.screen_size[0] * 0.76, self.screen_size[1] * 0.97))
+        else:
+            self.surface = pygame.transform.rotate(self.surface, 90)
+            self.coordinates = self.surface.get_rect(
+                center=(self.screen_size[0] * 0.95, self.screen_size[1] * 0.87))
+
+    def render(self, screen: pygame.Surface, fps: int) -> None:
+        screen.blit(self.surface, self.coordinates)
+        pygame.time.Clock().tick(fps)
+
+
 class Background:
     def __init__(self,
                  source_dir: str,
