@@ -1,8 +1,10 @@
-from typing import List, Dict
+from typing import Tuple, List, Dict
 
 import os
 import json
 import random
+
+import pygame
 
 
 class QuizGetter:
@@ -51,6 +53,32 @@ class QuizGetter:
 
 class QuizHandler:
     def __init__(self,
-                 json_dir: str):
+                 json_dir: str,
+                 source_dir: str,
+                 font_dir: str,
+                 screen_size: Tuple[int, int],
+                 question_color: Tuple[int, int, int] = (255, 255, 255),
+                 answer_color: Tuple[int, int, int] = (0, 0, 0),
+                 font_name: str = "Rubik-Medium.ttf",
+                 question_font_size: str = 50,
+                 answer_font_size: str = 36) -> None:
+
+        # Paths
+        self.source_dir = source_dir
+        self.font_dir = font_dir
+        self.font_path = os.path.join(font_dir, font_name)
+
+        # Guiz getter
         self.quiz_getter = QuizGetter(json_dir=json_dir)
-        pass
+
+        # Screen
+        self.screen_size = screen_size
+
+        # Fonts
+        self.question_font = pygame.font.Font(
+            self.font_path, question_font_size)
+        self.answer_font = pygame.font.Font(self.font_path, answer_font_size)
+
+        # Colors
+        self.question_color = question_color
+        self.answer_color = answer_color
