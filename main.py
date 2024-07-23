@@ -1,7 +1,7 @@
 import os
 import time
 
-from modules.quiz import OpentdbAPIHandler, QuizHandler
+from modules.quiz import OpentdbAPIHandler, QuizGetter
 from modules.game import GameCreator
 
 HOME = os.getcwd()
@@ -17,8 +17,8 @@ def main() -> None:
     # api_handler.download_questions(q_type="boolean")
 
     # Get question
-    quiz_handler = QuizHandler(json_dir=JSON_DIR)
-    question = quiz_handler.get_random_question(q_type="multiple")
+    quiz_getter = QuizGetter(json_dir=JSON_DIR)
+    question = quiz_getter.get_random_question(q_type="multiple")
     print(question)
 
     # Run game

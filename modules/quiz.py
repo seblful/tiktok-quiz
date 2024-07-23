@@ -104,7 +104,7 @@ class OpentdbAPIHandler:
         print(f"Questions with {q_type} type was saved.")
 
 
-class QuizHandler:
+class QuizGetter:
     def __init__(self,
                  json_dir: str) -> None:
         # Paths
