@@ -39,15 +39,15 @@ class Mention:
 
         # Set coordinates of text
         if position == "horizontal":
-            self.coordinates = self.surface.get_rect(
+            self.rect = self.surface.get_rect(
                 center=(self.screen_size[0] * 0.76, self.screen_size[1] * 0.97))
         else:
             self.surface = pygame.transform.rotate(self.surface, 90)
-            self.coordinates = self.surface.get_rect(
+            self.rect = self.surface.get_rect(
                 center=(self.screen_size[0] * 0.95, self.screen_size[1] * 0.87))
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        screen.blit(self.surface, self.coordinates)
+        screen.blit(self.surface, self.rect)
         pygame.time.Clock().tick(fps)
 
 
