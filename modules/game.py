@@ -42,7 +42,6 @@ class GameCreator:
 
         # Quiz
         self.quiz_handler = QuizHandler(json_dir=json_dir,
-                                        source_dir=source_dir,
                                         font_dir=os.path.join(
                                             source_dir, "fonts"),
                                         screen_size=screen_size)

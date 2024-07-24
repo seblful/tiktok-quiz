@@ -54,31 +54,52 @@ class QuizGetter:
 class QuizHandler:
     def __init__(self,
                  json_dir: str,
-                 source_dir: str,
                  font_dir: str,
                  screen_size: Tuple[int, int],
                  question_color: Tuple[int, int, int] = (255, 255, 255),
                  answer_color: Tuple[int, int, int] = (0, 0, 0),
-                 font_name: str = "Rubik-Medium.ttf",
-                 question_font_size: str = 50,
-                 answer_font_size: str = 36) -> None:
+                 font_name: str = "Rubik-Medium.ttf") -> None:
 
         # Paths
-        self.source_dir = source_dir
-        self.font_dir = font_dir
         self.font_path = os.path.join(font_dir, font_name)
 
         # Guiz getter
         self.quiz_getter = QuizGetter(json_dir=json_dir)
 
+        # Question and answers
+        self.question_handler = QuestionHandler(screen_size=screen_size,
+                                                font_path=self.font_path,
+                                                color=question_color)
+
+        self.answers_handler = AnswersHandler(screen_size=screen_size,
+                                              font_path=self.font_path,
+                                              color=answer_color)
+
         # Screen
         self.screen_size = screen_size
 
-        # Fonts
-        self.question_font = pygame.font.Font(
-            self.font_path, question_font_size)
-        self.answer_font = pygame.font.Font(self.font_path, answer_font_size)
+    def render(self):
+        pass
 
-        # Colors
-        self.question_color = question_color
-        self.answer_color = answer_color
+
+class QuestionHandler:
+    def __init__(self,
+                 screen_size: Tuple[int, int],
+                 font_path: str,
+                 color: Tuple[int, int]) -> None:
+        self.screen_isze = screen_size
+        self.font_path = font_path
+        self.color = color
+
+    def setup_interface(self):
+        pass
+
+
+class AnswersHandler:
+    def __init__(self,
+                 screen_size: Tuple[int, int],
+                 font_path: str,
+                 color: Tuple[int, int]) -> None:
+        self.screen_isze = screen_size
+        self.font_path = font_path
+        self.color = color
