@@ -67,6 +67,9 @@ class GameCreator:
             # Mention
             self.mention.render(self.screen, self.fps)
 
+            # Render quiz
+            self.quiz_handler.render(self.screen, self.fps)
+
             # Flip display
             pygame.display.flip()
 

@@ -78,8 +78,9 @@ class QuizHandler:
         # Screen
         self.screen_size = screen_size
 
-    def render(self):
-        pass
+    def render(self, screen: pygame.Surface, fps: int) -> None:
+        self.question_handler.render(screen, fps)
+        self.answers_handler.render(screen, fps)
 
 
 class QuestionHandler:
@@ -87,12 +88,23 @@ class QuestionHandler:
                  screen_size: Tuple[int, int],
                  font_path: str,
                  color: Tuple[int, int]) -> None:
-        self.screen_isze = screen_size
+        self.width, self.height = screen_size
         self.font_path = font_path
         self.color = color
 
-    def setup_interface(self):
-        pass
+        # Setup surface
+        self.setup_surface(
+            text='In Kingdom Hearts which of the following people can NOT wield a keyblade?')
+
+    def setup_surface(self, text: str) -> None:
+        self.font = pygame.font.Font(self.font_path, 30)
+        self.surface = self.font.render(text, True, self.color)
+        self.rect = self.surface.get_rect(topleft=(0.1 * self.width, 0.1 * self.height),
+                                          size=(0.9 * self.width, 0.3 * self.height))
+
+    def render(self, screen: pygame.Surface, fps: int) -> None:
+        screen.blit(self.surface, self.rect)
+        pygame.time.Clock().tick(fps)
 
 
 class AnswersHandler:
@@ -103,3 +115,9 @@ class AnswersHandler:
         self.screen_isze = screen_size
         self.font_path = font_path
         self.color = color
+
+    def setup_surface(self, text: str) -> None:
+        pass
+
+    def render(self, screen: pygame.Surface, fps: int) -> None:
+        pass
