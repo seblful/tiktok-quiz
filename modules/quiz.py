@@ -96,6 +96,25 @@ class QuestionHandler:
         self.setup_surface(
             text='In Kingdom Hearts which of the following people can NOT wield a keyblade?')
 
+    def render_text(surface, text, pos, font, color=pygame.Color('black'), max_width=None):
+        words = text.split(' ')
+        space_width = font.size(' ')[0]
+        x, y = pos
+
+        if max_width is None:
+            max_width = surface.get_width() - x
+
+        for word in words:
+            word_surface = font.render(word, True, color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_width:
+                x = pos[0]  # Reset x
+                y += word_height  # Move to next line
+            surface.blit(word_surface, (x, y))
+            x += word_width + space_width
+
+        return (x, y)
+
     def setup_surface(self, text: str) -> None:
         self.font = pygame.font.Font(self.font_path, 30)
         self.surface = self.font.render(text, True, self.color)
