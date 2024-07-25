@@ -16,7 +16,7 @@ class Mention:
                  font_name: str = "Zain-Regular.ttf",
                  font_size: str = 26) -> None:
         # Screen
-        self.screen_size = screen_size
+        self.width, self.height = screen_size
 
         # Init text, color
         self.text = text
@@ -40,11 +40,11 @@ class Mention:
         # Set coordinates of text
         if position == "horizontal":
             self.rect = self.surface.get_rect(
-                center=(self.screen_size[0] * 0.76, self.screen_size[1] * 0.97))
+                center=(self.width * 0.76, self.height * 0.97))
         else:
             self.surface = pygame.transform.rotate(self.surface, 90)
             self.rect = self.surface.get_rect(
-                center=(self.screen_size[0] * 0.95, self.screen_size[1] * 0.87))
+                center=(self.width * 0.95, self.height * 0.87))
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
         screen.blit(self.surface, self.rect)
