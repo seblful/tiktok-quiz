@@ -2,6 +2,7 @@ from typing import Tuple, List, Dict
 
 import os
 import json
+import math
 import random
 
 import pygame
@@ -92,37 +93,41 @@ class QuestionHandler:
         self.font_path = font_path
         self.color = color
 
-        # Setup surface
-        self.setup_surface(
-            text='In Kingdom Hearts which of the following people can NOT wield a keyblade?')
+        # # Setup surface
+        # self.setup_surface(
+        #     text='In Kingdom Hearts which of the following people can NOT wield a keyblade?')
 
-    def render_text(surface, text, pos, font, color=pygame.Color('black'), max_width=None):
-        words = text.split(' ')
+    def setup_surface(self, screen: pygame.Surface) -> None:
+        text = 'In Kingdom Hearts which of the following people can NOT wield a keyblade?'
+
+        # Setup font
+        font_size = int(len(text) / 10 + 10)
+        print(f"Font size is {font_size}.")
+        font = pygame.font.Font(
+            self.font_path, font_size)
         space_width = font.size(' ')[0]
-        x, y = pos
 
-        if max_width is None:
-            max_width = surface.get_width() - x
+        x = 0.1 * self.width
+        y = 0.1 * self.height
+
+        words = text.split(' ')
+        max_width = self.width * 0.9
 
         for word in words:
-            word_surface = font.render(word, True, color)
+            word_surface = font.render(word, True, self.color)
             word_width, word_height = word_surface.get_size()
             if x + word_width >= max_width:
-                x = pos[0]  # Reset x
+                x = 0.1 * self.width  # Reset x
                 y += word_height  # Move to next line
-            surface.blit(word_surface, (x, y))
+            screen.blit(word_surface, (x, y))
             x += word_width + space_width
 
-        return (x, y)
-
-    def setup_surface(self, text: str) -> None:
-        self.font = pygame.font.Font(self.font_path, 30)
-        self.surface = self.font.render(text, True, self.color)
-        self.rect = self.surface.get_rect(topleft=(0.1 * self.width, 0.1 * self.height),
-                                          size=(0.9 * self.width, 0.3 * self.height))
+        # self.rect = self.surface.get_rect(topleft=(0.1 * self.width, 0.1 * self.height),
+        #                                   size=(0.9 * self.width, 0.3 * self.height))
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        screen.blit(self.surface, self.rect)
+        self.setup_surface(screen)
+        # screen.blit(self.surface, self.rect)
         pygame.time.Clock().tick(fps)
 
 
