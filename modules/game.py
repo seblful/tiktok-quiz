@@ -75,8 +75,10 @@ class GameCreator:
 
             # Next question
             if pygame.time.get_ticks() % (sum(self.mode_durations) * 1000) < self.fps:
+                # Update color of the background
                 self.background.update_color()
-                # Next question
+                # Update question
+                self.quiz_handler.update_quiz()
 
         # Quit Pygame
         pygame.quit()
