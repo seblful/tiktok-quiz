@@ -88,46 +88,63 @@ class QuestionHandler:
     def __init__(self,
                  screen_size: Tuple[int, int],
                  font_path: str,
-                 color: Tuple[int, int]) -> None:
+                 color: Tuple[int, int, int]) -> None:
         self.width, self.height = screen_size
         self.font_path = font_path
         self.color = color
 
-        # # Setup surface
-        # self.setup_surface(
-        #     text='In Kingdom Hearts which of the following people can NOT wield a keyblade?')
-
     def setup_surface(self, screen: pygame.Surface) -> None:
-        text = 'In Kingdom Hearts which of the following people can NOT wield a keyblade?'
+        # Create rect
+        width_margin, height_margin = 0.05, 0.05
+        rect_width = self.width - (width_margin * 2 * self.width)
+        rect_height = 0.3 * self.height
+        rect = pygame.Rect(self.width * width_margin, self.height * height_margin,
+                           rect_width, rect_height)
+        pygame.draw.rect(screen, (125, 125, 125), rect)
 
-        # Setup font
-        font_size = int(len(text) / 10 + 10)
-        print(f"Font size is {font_size}.")
-        font = pygame.font.Font(
-            self.font_path, font_size)
+        text = 'In Kingdom Hearts which of the following people can NOT wield a keyblade? In Kingdom Hearts which of the following people can NOT wield a keyblade?'
+
+        # Find optimal font size
+        font_size = self.find_optimal_font_size(text, rect_width, rect_height)
+
+        font = pygame.font.Font(self.font_path, font_size)
+        words = text.split(' ')
         space_width = font.size(' ')[0]
 
-        x = 0.1 * self.width
-        y = 0.1 * self.height
-
-        words = text.split(' ')
-        max_width = self.width * 0.9
-
+        x, y = rect.x, rect.y
         for word in words:
             word_surface = font.render(word, True, self.color)
             word_width, word_height = word_surface.get_size()
-            if x + word_width >= max_width:
-                x = 0.1 * self.width  # Reset x
-                y += word_height  # Move to next line
+            if x + word_width >= rect.right:
+                x = rect.x
+                y += word_height
             screen.blit(word_surface, (x, y))
             x += word_width + space_width
 
-        # self.rect = self.surface.get_rect(topleft=(0.1 * self.width, 0.1 * self.height),
-        #                                   size=(0.9 * self.width, 0.3 * self.height))
+    def find_optimal_font_size(self, text: str, max_width: int, max_height: int) -> int:
+        font_size = 1
+        while True:
+            font = pygame.font.Font(self.font_path, font_size)
+            words = text.split(' ')
+            space_width = font.size(' ')[0]
+
+            x, y = 0, 0
+            max_y = 0
+            for word in words:
+                word_surface = font.render(word, True, self.color)
+                word_width, word_height = word_surface.get_size()
+                if x + word_width > max_width:
+                    x = 0
+                    y += word_height
+                x += word_width + space_width
+                max_y = max(max_y, y + word_height)
+
+            if max_y > max_height or x > max_width:
+                return font_size - 1
+            font_size += 1
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
         self.setup_surface(screen)
-        # screen.blit(self.surface, self.rect)
         pygame.time.Clock().tick(fps)
 
 
