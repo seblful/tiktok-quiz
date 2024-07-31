@@ -194,7 +194,8 @@ class AnswersHandler:
         # Text rectangles
         self.width_margin = 0.05
         self.height_margin = 0.41
-        self.inter_margin = 0.05
+        self.inter_w_margin = 0.05
+        self.inter_h_margin = 0.05
         self.__rect = None
         self.setup_rects()
 
@@ -218,20 +219,36 @@ class AnswersHandler:
     def setup_rects(self) -> None:
         self.answer_rects = []
 
-        for i in range(4):
-            pass
+        # Absolute values of inter margins
+        abs_inter_w_margin = self.inter_w_margin * self.rect.width
+        abs_inter_h_margin = self.inter_h_margin * self.rect.height
 
-    # Font
+        # Find width and height of answer block
+        answer_width = self.rect.width - (2 * abs_inter_w_margin)
+        answer_height = (
+            self.rect.height - ((len(self.answers) + 1)) * abs_inter_h_margin) / len(self.answers)
+
+        # Create answer rectangles and add it to all rectangles
+        abs_h_margin = self.height * self.height_margin + abs_inter_h_margin
+
+        for i in range(len(self.answers)):
+            answer_rect = pygame.Rect(self.width * self.width_margin + abs_inter_w_margin, abs_h_margin,
+                                      answer_width, answer_height)
+            self.answer_rects.append(answer_rect)
+
+            abs_h_margin += answer_height + abs_inter_w_margin
 
     def setup_font(self) -> None:
         pass
 
-    def render_answers(self, screen: pygame.Surface) -> None:
+    def render_words(self, screen: pygame.Surface) -> None:
         pass
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
-        self.render_answers(screen)
+        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+        for rect in self.answer_rects:
+            pygame.draw.rect(screen, (255, 255, 255), rect, 2)
+        self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
     def update_question(self, new_question: str) -> None:
