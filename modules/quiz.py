@@ -98,12 +98,13 @@ class QuestionHandler:
                  screen_size: Tuple[int, int],
                  font_path: str,
                  color: Tuple[int, int, int]) -> None:
+        # Screen, font, color
         self.width, self.height = screen_size
         self.font_path = font_path
         self.color = color
 
         # Text rectangle
-        self.width_margin, self.height_margin = 0.05, 0.05
+        self.width_margin, self.height_margin = 0.05, 0.1
         self.__rect = None
 
         # Question
@@ -124,7 +125,6 @@ class QuestionHandler:
 
     def setup_font(self) -> None:
         self.font_size = self.calculate_font_size()
-        print(self.font_size)
         self.font = pygame.font.Font(self.font_path, self.font_size)
         self.space_width = self.font.size(' ')[0]
 
@@ -183,17 +183,46 @@ class AnswersHandler:
                  screen_size: Tuple[int, int],
                  font_path: str,
                  color: Tuple[int, int]) -> None:
-        self.screen_size = screen_size
+        # Screen, font, color
+        self.width, self.height = screen_size
         self.font_path = font_path
         self.color = color
 
-        # Text rectangles
-
         # Answers
-        self.correct_answer = correct_answer
-        self.incorrect_anwers = incorrect_answers
+        self.setup_answers(correct_answer, incorrect_answers)
+
+        # Text rectangles
+        self.width_margin = 0.05
+        self.height_margin = 0.41
+        self.inter_margin = 0.05
+        self.__rect = None
+        self.setup_rects()
+
+    def setup_answers(self,
+                      correct_answer: str,
+                      incorrect_answers: List[str]):
+        self.answers = incorrect_answers.copy()
+        correct_idx = random.randint(0, len(incorrect_answers) + 1)
+        self.answers.insert(correct_idx, correct_answer)
+
+    @property
+    def rect(self) -> pygame.Rect:
+        if self.__rect is None:
+            rect_width = self.width - (self.width_margin * 2 * self.width)
+            rect_height = 0.52 * self.height
+            self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
+                                      rect_width, rect_height)
+
+        return self.__rect
+
+    def setup_rects(self) -> None:
+        self.answer_rects = []
+
+        for i in range(4):
+            pass
 
     # Font
+
     def setup_font(self) -> None:
         pass
 
@@ -201,6 +230,7 @@ class AnswersHandler:
         pass
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
+        # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
         self.render_answers(screen)
         pygame.time.Clock().tick(fps)
 
