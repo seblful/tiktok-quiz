@@ -124,14 +124,15 @@ class QuestionHandler:
 
     def setup_font(self) -> None:
         self.font_size = self.calculate_font_size()
+        print(self.font_size)
         self.font = pygame.font.Font(self.font_path, self.font_size)
         self.space_width = self.font.size(' ')[0]
 
     def calculate_font_size(self) -> int:
-        font_size = 1
+        max_font_size = 50  # Start with a large font size
         words = self.question.split(' ')
 
-        while True:
+        for font_size in range(max_font_size, 0, -1):
             font = pygame.font.Font(self.font_path, font_size)
             space_width = font.size(' ')[0]
 
@@ -146,9 +147,10 @@ class QuestionHandler:
                 x += word_width + space_width
                 max_y = max(max_y, y + word_height)
 
-            if max_y > self.rect.height or x > self.rect.width:
-                return font_size - 1
-            font_size += 1
+            if max_y <= self.rect.height and x <= self.rect.width:
+                return font_size
+
+        return 1
 
     def render_words(self, screen: pygame.Surface) -> None:
         # Split word
