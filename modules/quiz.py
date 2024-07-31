@@ -74,7 +74,9 @@ class QuizHandler:
                                                 font_path=self.font_path,
                                                 color=question_color)
 
-        self.answers_handler = AnswersHandler(screen_size=screen_size,
+        self.answers_handler = AnswersHandler(correct_answer=self.quiz["correct_answer"],
+                                              incorrect_answers=self.quiz["incorrect_answers"],
+                                              screen_size=screen_size,
                                               font_path=self.font_path,
                                               color=answer_color)
 
@@ -107,7 +109,7 @@ class QuestionHandler:
         # Question
         self.question = question
 
-        # Font size
+        # Font
         self.setup_font()
 
     @property
@@ -120,16 +122,17 @@ class QuestionHandler:
 
         return self.__rect
 
-    def setup_font(self):
+    def setup_font(self) -> None:
         self.font_size = self.calculate_font_size()
         self.font = pygame.font.Font(self.font_path, self.font_size)
         self.space_width = self.font.size(' ')[0]
 
     def calculate_font_size(self) -> int:
         font_size = 1
+        words = self.question.split(' ')
+
         while True:
             font = pygame.font.Font(self.font_path, font_size)
-            words = self.question.split(' ')
             space_width = font.size(' ')[0]
 
             x, y = 0, 0
@@ -173,15 +176,31 @@ class QuestionHandler:
 
 class AnswersHandler:
     def __init__(self,
+                 correct_answer: str,
+                 incorrect_answers: List[str],
                  screen_size: Tuple[int, int],
                  font_path: str,
                  color: Tuple[int, int]) -> None:
-        self.screen_isze = screen_size
+        self.screen_size = screen_size
         self.font_path = font_path
         self.color = color
 
-    def setup_surface(self, text: str) -> None:
+        # Text rectangles
+
+        # Answers
+        self.correct_answer = correct_answer
+        self.incorrect_anwers = incorrect_answers
+
+    # Font
+    def setup_font(self) -> None:
+        pass
+
+    def render_answers(self, screen: pygame.Surface) -> None:
         pass
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
+        self.render_answers(screen)
+        pygame.time.Clock().tick(fps)
+
+    def update_question(self, new_question: str) -> None:
         pass
