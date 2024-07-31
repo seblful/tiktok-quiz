@@ -123,6 +123,10 @@ class QuestionHandler:
 
         return self.__rect
 
+    def draw_rects(self, screen: pygame.Surface):
+        # Draw main rect
+        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+
     def setup_font(self) -> None:
         self.font_size = self.calculate_font_size()
         self.font = pygame.font.Font(self.font_path, self.font_size)
@@ -168,6 +172,10 @@ class QuestionHandler:
             x += word_width + self.space_width
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
+        # Draw rect
+        self.draw_rects(screen)
+
+        # Render
         self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
@@ -238,6 +246,14 @@ class AnswersHandler:
 
             abs_h_margin += answer_height + abs_inter_w_margin
 
+    def draw_rects(self, screen: pygame.Surface):
+        # Draw main rect
+        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+
+        # Draw answer rects
+        for rect in self.answer_rects:
+            pygame.draw.rect(screen, (255, 255, 255), rect, 2)
+
     def setup_font(self) -> None:
         pass
 
@@ -245,9 +261,10 @@ class AnswersHandler:
         pass
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
-        for rect in self.answer_rects:
-            pygame.draw.rect(screen, (255, 255, 255), rect, 2)
+        # Draw rects
+        self.draw_rects(screen)
+
+        # Render
         self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
