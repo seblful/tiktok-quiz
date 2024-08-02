@@ -1,3 +1,4 @@
+from typing import Tuple
 from typing import List, Tuple
 from typing import Tuple, List, Dict
 
@@ -101,19 +102,24 @@ class QuestionHandler:
                  screen_size: Tuple[int, int],
                  font_path: str,
                  color: Tuple[int, int, int]) -> None:
-        # Screen, font, color
+        """
+        Initialize the QuestionHandler with the given question, screen size, font, and color.
+
+        :param question: The question string to display
+        :param screen_size: Tuple containing screen width and height
+        :param font_path: Path to the font file
+        :param color: Tuple containing the RGB color values
+        """
         self.width, self.height = screen_size
         self.font_path = font_path
         self.color = color
 
-        # Text rectangle
-        self.width_margin, self.height_margin = 0.05, 0.1
+        self.width_margin = 0.05
+        self.height_margin = 0.1
         self.__rect = None
 
-        # Question
         self.question = question
 
-        # Font
         self.setup_font()
 
     @property
@@ -123,11 +129,9 @@ class QuestionHandler:
             rect_height = 0.3 * self.height
             self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
                                       rect_width, rect_height)
-
         return self.__rect
 
-    def draw_rects(self, screen: pygame.Surface):
-        # Draw main rect
+    def draw_rect(self, screen: pygame.Surface) -> None:
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
     def setup_font(self) -> None:
@@ -136,34 +140,36 @@ class QuestionHandler:
         self.space_width = self.font.size(' ')[0]
 
     def calculate_font_size(self) -> int:
-        max_font_size = 50  # Start with a large font size
+        max_font_size = 50
         words = self.question.split(' ')
 
         for font_size in range(max_font_size, 0, -1):
             font = pygame.font.Font(self.font_path, font_size)
             space_width = font.size(' ')[0]
 
-            x, y = 0, 0
-            max_y = 0
-            for word in words:
-                word_surface = font.render(word, True, self.color)
-                word_width, word_height = word_surface.get_size()
-                if x + word_width > self.rect.width:
-                    x = 0
-                    y += word_height
-                x += word_width + space_width
-                max_y = max(max_y, y + word_height)
-
-            if max_y <= self.rect.height and x <= self.rect.width:
+            if self.does_text_fit(font, words, space_width):
                 return font_size
 
         return 1
 
+    def does_text_fit(self, font: pygame.font.Font, words: list, space_width: int) -> bool:
+        x, y = 0, 0
+        max_y = 0
+
+        for word in words:
+            word_surface = font.render(word, True, self.color)
+            word_width, word_height = word_surface.get_size()
+            if x + word_width > self.rect.width:
+                x = 0
+                y += word_height
+            x += word_width + space_width
+            max_y = max(max_y, y + word_height)
+
+        return max_y <= self.rect.height and x <= self.rect.width
+
     def render_words(self, screen: pygame.Surface) -> None:
-        # Split word
         words = self.question.split(' ')
 
-        # Iterates through words and blit them
         x, y = self.rect.x, self.rect.y
         for word in words:
             word_surface = self.font.render(word, True, self.color)
@@ -175,16 +181,13 @@ class QuestionHandler:
             x += word_width + self.space_width
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        # Draw rect
-        self.draw_rects(screen)
-
-        # Render
+        self.draw_rect(screen)
         self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
     def update_question(self, new_question: str) -> None:
         self.question = new_question
-        self.font_size = self.setup_font()
+        self.setup_font()
 
 
 class AnswersHandler:
@@ -194,31 +197,31 @@ class AnswersHandler:
                  screen_size: Tuple[int, int],
                  font_path: str,
                  color: Tuple[int, int]) -> None:
-        # Screen, font, color
+        """
+        Initialize the AnswersHandler with given answers, screen size, font, and color.
+
+        :param correct_answer: The correct answer string
+        :param incorrect_answers: A list of incorrect answer strings
+        :param screen_size: Tuple containing screen width and height
+        :param font_path: Path to the font file
+        :param color: Tuple containing the RGB color values
+        """
         self.width, self.height = screen_size
         self.font_path = font_path
         self.color = color
 
-        # Answers
-        self.setup_answers(correct_answer, incorrect_answers)
-
-        # Text rectangles
         self.width_margin = 0.05
         self.height_margin = 0.41
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
         self.text_margin = 0.1
         self.__rect = None
-        self.setup_rects()
 
-        # Fonts
-        self.setup_fonts()
+        self.update_answers(correct_answer, incorrect_answers)
 
-    def setup_answers(self,
-                      correct_answer: str,
-                      incorrect_answers: List[str]) -> None:
+    def setup_answers(self, correct_answer: str, incorrect_answers: List[str]) -> None:
         self.answers = incorrect_answers.copy()
-        correct_idx = random.randint(0, len(incorrect_answers) + 1)
+        correct_idx = random.randint(0, len(incorrect_answers))
         self.answers.insert(correct_idx, correct_answer)
 
     @property
@@ -228,67 +231,47 @@ class AnswersHandler:
             rect_height = 0.52 * self.height
             self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
                                       rect_width, rect_height)
-
         return self.__rect
 
     def setup_rects(self) -> None:
         self.answer_rects = []
-
-        # Absolute values of inter margins
         abs_inter_w_margin = self.inter_w_margin * self.rect.width
         abs_inter_h_margin = self.inter_h_margin * self.rect.height
 
-        # Find width and height of answer block
         answer_width = self.rect.width - (2 * abs_inter_w_margin)
-        answer_height = (
-            self.rect.height - ((len(self.answers) + 1)) * abs_inter_h_margin) / len(self.answers)
+        answer_height = (self.rect.height - ((len(self.answers) + 1)
+                         * abs_inter_h_margin)) / len(self.answers)
 
-        # Create answer rectangles and add it to all rectangles
         abs_h_margin = self.height * self.height_margin + abs_inter_h_margin
 
-        for i in range(len(self.answers)):
+        for _ in self.answers:
             answer_rect = pygame.Rect(self.width * self.width_margin + abs_inter_w_margin, abs_h_margin,
                                       answer_width, answer_height)
             self.answer_rects.append(answer_rect)
-
             abs_h_margin += answer_height + abs_inter_h_margin
 
     def draw_rects(self, screen: pygame.Surface) -> None:
-        # Draw main rect
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
-        # Draw answer rects
         for rect in self.answer_rects:
             pygame.draw.rect(screen, (255, 255, 255),
                              rect, 0, border_radius=30)
 
     def setup_fonts(self) -> None:
-        # Create empty list to store fonts
-        self.fonts = []
+        self.fonts = [self.create_font(answer, rect) for answer, rect in zip(
+            self.answers, self.answer_rects)]
 
-        # Iterate through answers and rects
-        for i in range(len(self.answers)):
-            answer = self.answers[i]
-            rect = self.answer_rects[i]
-
-            # Find font size and create fonts
-            font_size = self.calculate_font_size(answer, rect)
-            font = pygame.font.Font(self.font_path, font_size)
-
-            # Append font to the list
-            self.fonts.append(font)
-
-    def calculate_font_size(self, answer: str, rect: pygame.Rect) -> int:
-        max_font_size = 50  # Start with a large font size
+    def create_font(self, answer: str, rect: pygame.Rect) -> pygame.font.Font:
+        max_font_size = 50
         words = answer.split(' ')
 
         for font_size in range(max_font_size, 0, -1):
             font = pygame.font.Font(self.font_path, font_size)
             space_width = font.size(' ')[0]
-
-            x = self.text_margin * rect.width  # Only apply text_margin to x-axis
+            x = self.text_margin * rect.width
             max_y = 0
             y = 0
+
             for word in words:
                 word_surface = font.render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
@@ -299,67 +282,59 @@ class AnswersHandler:
                 max_y = max(max_y, y + word_height)
 
             if max_y <= rect.height:
-                return font_size
+                return font
 
-        return 1
+        return pygame.font.Font(self.font_path, 1)
 
     def render_words(self, screen: pygame.Surface) -> None:
-        for i in range(len(self.answers)):
-            answer = self.answers[i]
-            rect = self.answer_rects[i]
-
-            # Split word
+        for answer, rect, font in zip(self.answers, self.answer_rects, self.fonts):
             words = answer.split(' ')
+            space_width = font.size(' ')[0]
 
-            # Retrieve space width
-            space_width = self.fonts[i].size(' ')[0]
-
-            # Calculate the total height of the text block
-            total_height = 0
-            line_width = 0
-            max_line_height = 0
-            line_heights = []
-
-            for word in words:
-                word_surface = self.fonts[i].render(word, True, self.color)
-                word_width, word_height = word_surface.get_size()
-                if line_width + word_width >= rect.width - self.text_margin * rect.width:
-                    total_height += max_line_height
-                    line_heights.append(max_line_height)
-                    max_line_height = word_height
-                    line_width = 0
-                line_width += word_width + space_width
-                max_line_height = max(max_line_height, word_height)
-
-            total_height += max_line_height  # Add the height of the last line
-            line_heights.append(max_line_height)
-
-            # Calculate the y offset to center the text
+            total_height = self.calculate_total_height(words, font, rect.width)
             y_offset = (rect.height - total_height) / 2
 
-            # Iterates through words and blit them
             x = rect.x + self.text_margin * rect.width
             y = rect.y + y_offset
             line_width = 0
-            current_line_height = line_heights.pop(0)
+            current_line_height = 0
 
             for word in words:
-                word_surface = self.fonts[i].render(word, True, self.color)
+                word_surface = font.render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
+
                 if line_width + word_width >= rect.width - self.text_margin * rect.width:
                     x = rect.x + self.text_margin * rect.width
                     y += current_line_height
-                    current_line_height = line_heights.pop(0)
+                    current_line_height = word_height
                     line_width = 0
+
                 screen.blit(word_surface, (x, y))
                 x += word_width + space_width
                 line_width += word_width + space_width
+                current_line_height = max(current_line_height, word_height)
+
+    def calculate_total_height(self, words: List[str], font: pygame.font.Font, rect_width: int) -> int:
+        space_width = font.size(' ')[0]
+        line_width = 0
+        max_line_height = 0
+        total_height = 0
+
+        for word in words:
+            word_width, word_height = font.size(word)
+            if line_width + word_width >= rect_width - self.text_margin * rect_width:
+                total_height += max_line_height
+                line_width = 0
+                max_line_height = word_height
+
+            line_width += word_width + space_width
+            max_line_height = max(max_line_height, word_height)
+
+        total_height += max_line_height
+        return total_height
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        # Draw rects
         self.draw_rects(screen)
-
-        # Render
         self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
