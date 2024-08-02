@@ -91,6 +91,8 @@ class QuizHandler:
     def update_quiz(self) -> None:
         self.quiz = self.quiz_getter.get_random_question(q_type="multiple")
         self.question_handler.update_question(self.quiz['question'])
+        self.answers_handler.update_answers(
+            self.quiz["correct_answer"], self.quiz["incorrect_answers"])
 
 
 class QuestionHandler:
@@ -361,5 +363,7 @@ class AnswersHandler:
         self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
-    def update_question(self, new_question: str) -> None:
-        pass
+    def update_answers(self, new_correct_answer: str, new_incorrect_answers: List[str]) -> None:
+        self.setup_answers(new_correct_answer, new_incorrect_answers)
+        self.setup_rects()
+        self.setup_fonts()
