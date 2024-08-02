@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from typing import Tuple, List, Dict
 
 import os
@@ -204,7 +205,7 @@ class AnswersHandler:
         self.height_margin = 0.41
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
-        self.text_margin = 0.05  # New margin for text
+        self.text_margin = 0.1
         self.__rect = None
         self.setup_rects()
 
@@ -256,7 +257,7 @@ class AnswersHandler:
 
         # Draw answer rects
         for rect in self.answer_rects:
-            pygame.draw.rect(screen, (255, 255, 255, ),
+            pygame.draw.rect(screen, (255, 255, 255),
                              rect, 0, border_radius=30)
 
     def setup_fonts(self) -> None:
@@ -274,7 +275,6 @@ class AnswersHandler:
 
             # Append font to the list
             self.fonts.append(font)
-            # self.space_width = self.font.size(' ')[0]
 
     def calculate_font_size(self, answer: str, rect: pygame.Rect) -> int:
         max_font_size = 50  # Start with a large font size
@@ -284,18 +284,19 @@ class AnswersHandler:
             font = pygame.font.Font(self.font_path, font_size)
             space_width = font.size(' ')[0]
 
-            x, y = self.text_margin * rect.width, self.text_margin * rect.height
+            x = self.text_margin * rect.width  # Only apply text_margin to x-axis
             max_y = 0
+            y = 0
             for word in words:
                 word_surface = font.render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
-                if x + word_width > rect.width - (2 * self.text_margin * rect.width):
+                if x + word_width > rect.width:
                     x = self.text_margin * rect.width
                     y += word_height
                 x += word_width + space_width
                 max_y = max(max_y, y + word_height)
 
-            if max_y <= rect.height - (2 * self.text_margin * rect.height) and x <= rect.width - (2 * self.text_margin * rect.width):
+            if max_y <= rect.height:
                 return font_size
 
         return 1
@@ -315,37 +316,42 @@ class AnswersHandler:
             total_height = 0
             line_width = 0
             max_line_height = 0
+            line_heights = []
+
             for word in words:
                 word_surface = self.fonts[i].render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
-                if line_width + word_width >= rect.width - 2 * self.text_margin * rect.width:
+                if line_width + word_width >= rect.width - self.text_margin * rect.width:
                     total_height += max_line_height
+                    line_heights.append(max_line_height)
                     max_line_height = word_height
                     line_width = 0
                 line_width += word_width + space_width
                 max_line_height = max(max_line_height, word_height)
+
             total_height += max_line_height  # Add the height of the last line
+            line_heights.append(max_line_height)
 
             # Calculate the y offset to center the text
             y_offset = (rect.height - total_height) / 2
 
             # Iterates through words and blit them
-            x, y = rect.x + self.text_margin * rect.width, rect.y + \
-                y_offset + self.text_margin * rect.height
+            x = rect.x + self.text_margin * rect.width
+            y = rect.y + y_offset
             line_width = 0
-            max_line_height = 0
+            current_line_height = line_heights.pop(0)
+
             for word in words:
                 word_surface = self.fonts[i].render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
-                if line_width + word_width >= rect.right - self.text_margin * rect.width:
+                if line_width + word_width >= rect.width - self.text_margin * rect.width:
                     x = rect.x + self.text_margin * rect.width
-                    y += max_line_height
-                    max_line_height = word_height
+                    y += current_line_height
+                    current_line_height = line_heights.pop(0)
                     line_width = 0
                 screen.blit(word_surface, (x, y))
                 x += word_width + space_width
                 line_width += word_width + space_width
-                max_line_height = max(max_line_height, word_height)
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
         # Draw rects
