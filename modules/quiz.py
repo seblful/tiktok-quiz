@@ -214,15 +214,20 @@ class AnswersHandler:
         self.height_margin = 0.41
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
-        self.text_margin = 0.1
+        self.text_margin = 0.12
         self.__rect = None
+
+        self.circle_color = (255, 0, 40)
+        self.letter_color = (255, 255, 255)
+        self.letters = ['A', 'B', 'C', 'D']
+        self.letter_font = pygame.font.Font(self.font_path, 35)
 
         self.update_answers(correct_answer, incorrect_answers)
 
     def setup_answers(self, correct_answer: str, incorrect_answers: List[str]) -> None:
         self.answers = incorrect_answers.copy()
-        correct_idx = random.randint(0, len(incorrect_answers))
-        self.answers.insert(correct_idx, correct_answer)
+        self.correct_idx = random.randint(0, len(incorrect_answers))
+        self.answers.insert(self.correct_idx, correct_answer)
 
     @property
     def rect(self) -> pygame.Rect:
@@ -250,12 +255,25 @@ class AnswersHandler:
             self.answer_rects.append(answer_rect)
             abs_h_margin += answer_height + abs_inter_h_margin
 
-    def draw_rects(self, screen: pygame.Surface) -> None:
+    def draw(self, screen: pygame.Surface) -> None:
+        # Draw main rect
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
-        for rect in self.answer_rects:
+        # Draw answers rect and circles
+        for i in range(len(self.answers)):
+            # Answers rect
             pygame.draw.rect(screen, (255, 255, 255),
-                             rect, 0, border_radius=30)
+                             self.answer_rects[i], 0,
+                             border_top_right_radius=25, border_bottom_right_radius=25)
+
+            # Circless
+            pygame.draw.circle(screen, self.circle_color,
+                               self.answer_rects[i].midleft, self.answer_rects[i].height / 2)
+            # Letter
+            letter = self.letter_font.render(
+                self.letters[i], True, self.letter_color)
+            letter_rect = letter.get_rect(center=self.answer_rects[i].midleft)
+            screen.blit(letter, letter_rect)
 
     def setup_fonts(self) -> None:
         self.fonts = [self.create_font(answer, rect) for answer, rect in zip(
@@ -334,7 +352,7 @@ class AnswersHandler:
         return total_height
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
-        self.draw_rects(screen)
+        self.draw(screen)
         self.render_words(screen)
         pygame.time.Clock().tick(fps)
 
