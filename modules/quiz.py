@@ -210,17 +210,17 @@ class AnswersHandler:
         self.font_path = font_path
         self.color = color
 
-        self.width_margin = 0.05
+        self.width_margin = 0.09
         self.height_margin = 0.41
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
-        self.text_margin = 0.12
+        self.text_margin = 0.13
         self.__rect = None
 
         self.circle_color = (255, 0, 40)
         self.letter_color = (255, 255, 255)
         self.letters = ['A', 'B', 'C', 'D']
-        self.letter_font = pygame.font.Font(self.font_path, 35)
+        self.letter_font = pygame.font.Font(self.font_path, 40)
 
         self.update_answers(correct_answer, incorrect_answers)
 
@@ -232,7 +232,7 @@ class AnswersHandler:
     @property
     def rect(self) -> pygame.Rect:
         if self.__rect is None:
-            rect_width = self.width - (self.width_margin * 2 * self.width)
+            rect_width = self.width - (self.width_margin * self.width)
             rect_height = 0.52 * self.height
             self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
                                       rect_width, rect_height)
