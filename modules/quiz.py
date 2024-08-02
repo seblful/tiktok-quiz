@@ -209,7 +209,7 @@ class AnswersHandler:
 
     def setup_answers(self,
                       correct_answer: str,
-                      incorrect_answers: List[str]):
+                      incorrect_answers: List[str]) -> None:
         self.answers = incorrect_answers.copy()
         correct_idx = random.randint(0, len(incorrect_answers) + 1)
         self.answers.insert(correct_idx, correct_answer)
@@ -246,7 +246,7 @@ class AnswersHandler:
 
             abs_h_margin += answer_height + abs_inter_w_margin
 
-    def draw_rects(self, screen: pygame.Surface):
+    def draw_rects(self, screen: pygame.Surface) -> None:
         # Draw main rect
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
@@ -254,11 +254,65 @@ class AnswersHandler:
         for rect in self.answer_rects:
             pygame.draw.rect(screen, (255, 255, 255), rect, 2)
 
-    def setup_font(self) -> None:
-        pass
+    def setup_fonts(self) -> None:
+        # Create empty list to store fonts
+        self.fonts = []
+
+        # Iterate through answers and rects
+        for i in range(len(self.answers)):
+            answer = self.answers[i]
+            rect = self.answer_rects[i]
+
+            # Find font size and create fonts
+            font_size = self.calculate_font_size(answer, rect)
+            font = pygame.font.Font(self.font_path, font_size)
+
+            # Append font to the list
+            self.fonts.append(font)
+            # self.space_width = self.font.size(' ')[0]
+
+    def calculate_font_size(self, answer: str, rect: pygame.Rect) -> int:
+        max_font_size = 50  # Start with a large font size
+        words = answer.split(' ')
+
+        for font_size in range(max_font_size, 0, -1):
+            font = pygame.font.Font(self.font_path, font_size)
+            space_width = font.size(' ')[0]
+
+            x, y = 0, 0
+            max_y = 0
+            for word in words:
+                word_surface = font.render(word, True, self.color)
+                word_width, word_height = word_surface.get_size()
+                if x + word_width > rect.width:
+                    x = 0
+                    y += word_height
+                x += word_width + space_width
+                max_y = max(max_y, y + word_height)
+
+            if max_y <= rect.height and x <= rect.width:
+                return font_size
+
+        return 1
 
     def render_words(self, screen: pygame.Surface) -> None:
-        pass
+        for i in range(len(self.answers)):
+            answer = self.answers[i]
+            rect = self.answer_rects[i]
+
+            # Split word
+            words = answer.split(' ')
+
+            # Iterates through words and blit them
+            x, y = rect.x, rect.y
+            for word in words:
+                word_surface = self.font.render(word, True, self.color)
+                word_width, word_height = word_surface.get_size()
+                if x + word_width >= rect.right:
+                    x = rect.x
+                    y += word_height
+                screen.blit(word_surface, (x, y))
+                x += word_width + self.space_width
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
         # Draw rects
