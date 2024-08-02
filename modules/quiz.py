@@ -204,8 +204,12 @@ class AnswersHandler:
         self.height_margin = 0.41
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
+        self.text_margin = 0.05  # New margin for text
         self.__rect = None
         self.setup_rects()
+
+        # Fonts
+        self.setup_fonts()
 
     def setup_answers(self,
                       correct_answer: str,
@@ -244,7 +248,7 @@ class AnswersHandler:
                                       answer_width, answer_height)
             self.answer_rects.append(answer_rect)
 
-            abs_h_margin += answer_height + abs_inter_w_margin
+            abs_h_margin += answer_height + abs_inter_h_margin
 
     def draw_rects(self, screen: pygame.Surface) -> None:
         # Draw main rect
@@ -252,7 +256,8 @@ class AnswersHandler:
 
         # Draw answer rects
         for rect in self.answer_rects:
-            pygame.draw.rect(screen, (255, 255, 255), rect, 2)
+            pygame.draw.rect(screen, (255, 255, 255, ),
+                             rect, 0, border_radius=30)
 
     def setup_fonts(self) -> None:
         # Create empty list to store fonts
@@ -279,18 +284,18 @@ class AnswersHandler:
             font = pygame.font.Font(self.font_path, font_size)
             space_width = font.size(' ')[0]
 
-            x, y = 0, 0
+            x, y = self.text_margin * rect.width, self.text_margin * rect.height
             max_y = 0
             for word in words:
                 word_surface = font.render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
-                if x + word_width > rect.width:
-                    x = 0
+                if x + word_width > rect.width - (2 * self.text_margin * rect.width):
+                    x = self.text_margin * rect.width
                     y += word_height
                 x += word_width + space_width
                 max_y = max(max_y, y + word_height)
 
-            if max_y <= rect.height and x <= rect.width:
+            if max_y <= rect.height - (2 * self.text_margin * rect.height) and x <= rect.width - (2 * self.text_margin * rect.width):
                 return font_size
 
         return 1
@@ -303,16 +308,30 @@ class AnswersHandler:
             # Split word
             words = answer.split(' ')
 
-            # Iterates through words and blit them
-            x, y = rect.x, rect.y
+            # Retrieve space width
+            space_width = self.fonts[i].size(' ')[0]
+
+            # Calculate the total height of the text
+            total_height = 0
             for word in words:
-                word_surface = self.font.render(word, True, self.color)
+                word_surface = self.fonts[i].render(word, True, self.color)
                 word_width, word_height = word_surface.get_size()
-                if x + word_width >= rect.right:
-                    x = rect.x
+                total_height += word_height
+
+            # Calculate the y offset to center the text
+            y_offset = (rect.height - total_height) / 2
+
+            # Iterates through words and blit them
+            x, y = rect.x + self.text_margin * rect.width, rect.y + \
+                y_offset + self.text_margin * rect.height
+            for word in words:
+                word_surface = self.fonts[i].render(word, True, self.color)
+                word_width, word_height = word_surface.get_size()
+                if x + word_width >= rect.right - self.text_margin * rect.width:
+                    x = rect.x + self.text_margin * rect.width
                     y += word_height
                 screen.blit(word_surface, (x, y))
-                x += word_width + self.space_width
+                x += word_width + space_width
 
     def render(self, screen: pygame.Surface, fps: int) -> None:
         # Draw rects
