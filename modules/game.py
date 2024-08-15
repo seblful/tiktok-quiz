@@ -6,6 +6,7 @@ import pygame
 
 from .quiz import QuizHandler
 from .background import Background, Mention
+from .progress_bar import ProgressBar
 
 
 class GameCreator:
@@ -46,6 +47,9 @@ class GameCreator:
                                             source_dir, "fonts"),
                                         screen_size=screen_size)
 
+        # Progress bar
+        self.progress_bar = ProgressBar()
+
         # Running
         self.running = True
 
@@ -72,6 +76,9 @@ class GameCreator:
 
             # Flip display
             pygame.display.flip()
+
+            # Render progress bar
+            self.progress_bar.render(self.screen, self.fps)
 
             # Next question
             if pygame.time.get_ticks() % (sum(self.mode_durations) * 1000) < self.fps:
