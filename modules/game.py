@@ -18,8 +18,8 @@ class GameCreator:
         self.font_dir = os.path.join(source_dir, "fonts")
 
         # Game modes
-        self.game_modes = ("topic", "question", "answer")
-        self.mode_durations = (1, 3, 2)
+        self.game_modes = ("question", "answer")
+        self.mode_durations = (3, 2)
         self.mode_index = 0
         self.current_mode = self.game_modes[self.mode_index]
         self.mode_start_time = 0  # Track start time of current mode
@@ -57,7 +57,7 @@ class GameCreator:
         icon = pygame.image.load(os.path.join(source_dir, "icon.png"))
         pygame.display.set_icon(icon)
 
-    def check_game_mode(self, ticks: int) -> None:
+    def check_game_mode(self, ticks: int) -> float:
         elapsed_time = (ticks - self.mode_start_time) / 1000
         if elapsed_time >= self.mode_durations[self.mode_index]:
             # Move to the next mode
@@ -69,6 +69,8 @@ class GameCreator:
             if self.mode_index == 0:
                 self.next_question()
 
+        return elapsed_time
+
     def next_question(self) -> None:
         # Update color of the background
         self.background.update_color()
@@ -76,7 +78,8 @@ class GameCreator:
         self.quiz_handler.update_quiz()
 
     def run(self) -> None:
-        self.mode_start_time = pygame.time.get_ticks()  # Initialize start time
+        # Initialize start time
+        self.mode_start_time = pygame.time.get_ticks()
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -91,20 +94,22 @@ class GameCreator:
             # Render quiz
             self.quiz_handler.render(self.screen)
 
+            # Get ticks
+            ticks = pygame.time.get_ticks()
+
+            # Check game mode
+            elapsed_time = self.check_game_mode(ticks)
+
             # Render progress bar
-            self.progress_bar.render(self.screen)
+            if self.current_mode == "question":
+                self.progress_bar.render(
+                    self.screen, elapsed_time, self.mode_durations[self.mode_index])
 
             # Flip display
             pygame.display.flip()
 
             # FPS
             pygame.time.Clock().tick(self.fps)
-
-            # Get ticks
-            ticks = pygame.time.get_ticks()
-
-            # Check game mode
-            self.check_game_mode(ticks)
 
         # Quit Pygame
         pygame.quit()
