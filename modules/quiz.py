@@ -85,9 +85,9 @@ class QuizHandler:
         # Screen
         self.screen_size = screen_size
 
-    def render(self, screen: pygame.Surface, fps: int) -> None:
-        self.question_handler.render(screen, fps)
-        self.answers_handler.render(screen, fps)
+    def render(self, screen: pygame.Surface) -> None:
+        self.question_handler.render(screen)
+        self.answers_handler.render(screen)
 
     def update_quiz(self) -> None:
         self.quiz = self.quiz_getter.get_random_question(q_type="multiple")
@@ -180,10 +180,9 @@ class QuestionHandler:
             screen.blit(word_surface, (x, y))
             x += word_width + self.space_width
 
-    def render(self, screen: pygame.Surface, fps: int) -> None:
+    def render(self, screen: pygame.Surface) -> None:
         self.draw_rect(screen)
         self.render_words(screen)
-        pygame.time.Clock().tick(fps)
 
     def update_question(self, new_question: str) -> None:
         self.question = new_question
@@ -351,10 +350,9 @@ class AnswersHandler:
         total_height += max_line_height
         return total_height
 
-    def render(self, screen: pygame.Surface, fps: int) -> None:
+    def render(self, screen: pygame.Surface) -> None:
         self.draw(screen)
         self.render_words(screen)
-        pygame.time.Clock().tick(fps)
 
     def update_answers(self, new_correct_answer: str, new_incorrect_answers: List[str]) -> None:
         self.setup_answers(new_correct_answer, new_incorrect_answers)

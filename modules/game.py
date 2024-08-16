@@ -48,7 +48,7 @@ class GameCreator:
                                         screen_size=screen_size)
 
         # Progress bar
-        self.progress_bar = ProgressBar()
+        self.progress_bar = ProgressBar(screen_size=screen_size)
 
         # Running
         self.running = True
@@ -66,19 +66,22 @@ class GameCreator:
                     self.running = False
 
             # Render background
-            self.background.render(self.screen, self.fps)
+            self.background.render(self.screen)
 
             # Mention
-            self.mention.render(self.screen, self.fps)
+            self.mention.render(self.screen)
 
             # Render quiz
-            self.quiz_handler.render(self.screen, self.fps)
+            self.quiz_handler.render(self.screen)
 
             # Flip display
             pygame.display.flip()
 
             # Render progress bar
-            self.progress_bar.render(self.screen, self.fps)
+            self.progress_bar.render(self.screen)
+
+            # FPS
+            pygame.time.Clock().tick(self.fps)
 
             # Next question
             if pygame.time.get_ticks() % (sum(self.mode_durations) * 1000) < self.fps:

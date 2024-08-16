@@ -46,9 +46,8 @@ class Mention:
             self.rect = self.surface.get_rect(
                 center=(self.width * 0.95, self.height * 0.87))
 
-    def render(self, screen: pygame.Surface, fps: int) -> None:
+    def render(self, screen: pygame.Surface) -> None:
         screen.blit(self.surface, self.rect)
-        pygame.time.Clock().tick(fps)
 
 
 class Background:
@@ -115,7 +114,7 @@ class Background:
                               size=self.shape_size)
                 self.shapes.append(shape)
 
-    def render(self, screen: pygame.Surface, fps: int) -> None:
+    def render(self, screen: pygame.Surface) -> None:
         self.surface.fill(self.colors[self.color_index % len(self.colors)])
 
         for shape in self.shapes:
@@ -123,7 +122,6 @@ class Background:
             shape.draw(self.surface)
 
         screen.blit(self.surface, (0, 0))
-        pygame.time.Clock().tick(fps)
 
     def update_color(self) -> None:
         self.color_index += 1
