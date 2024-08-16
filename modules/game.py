@@ -74,11 +74,11 @@ class GameCreator:
             # Render quiz
             self.quiz_handler.render(self.screen)
 
-            # Flip display
-            pygame.display.flip()
-
             # Render progress bar
             self.progress_bar.render(self.screen)
+
+            # Flip display
+            pygame.display.flip()
 
             # FPS
             pygame.time.Clock().tick(self.fps)
