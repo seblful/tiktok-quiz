@@ -16,6 +16,12 @@ class ProgressBar:
         self.end_color = (255, 0, 0)
 
         # Rects
+        self.outer_rect_color = (255, 255, 255)
+        self.outer_rect_width = 8
+
+        self.inner_rect_color = (220, 220, 220)
+
+        self.rect_border_radius = 20
         self.__outer_rect = None
         self.__inner_rect = None
 
@@ -25,11 +31,33 @@ class ProgressBar:
             rect_width = self.screen_width - \
                 (self.width_margin * 2 * self.screen_width)
             rect_height = self.screen_height * (0.1 - self.height_margin * 2)
-            self.__outer_rect = pygame.Rect(self.screen_width * self.width_margin, self.screen_height * self.height_margin,
+            self.__outer_rect = pygame.Rect(self.screen_width * self.width_margin,
+                                            self.screen_height * self.height_margin,
                                             rect_width, rect_height)
 
         return self.__outer_rect
 
+    @property
+    def inner_rect(self) -> pygame.Rect:
+        if self.__inner_rect is None:
+            rect_width = self.outer_rect.width - self.outer_rect_width
+            rect_height = self.outer_rect.height - self.outer_rect_width
+            self.__inner_rect = pygame.Rect(self.screen_width * self.width_margin + self.outer_rect_width / 2,
+                                            self.screen_height * self.height_margin + self.outer_rect_width / 2,
+                                            rect_width, rect_height)
+
+        return self.__inner_rect
+
     def render(self, screen: pygame.Surface) -> None:
-        pygame.draw.rect(screen, (255, 255, 255),
-                         self.outer_rect, width=4, border_radius=20)
+        # Draw inner rect
+        pygame.draw.rect(screen,
+                         self.outer_rect_color,
+                         self.outer_rect,
+                         width=self.outer_rect_width,
+                         border_radius=self.rect_border_radius)
+
+        # Draw outer rect
+        pygame.draw.rect(screen,
+                         self.inner_rect_color,
+                         self.inner_rect,
+                         border_radius=self.rect_border_radius)
