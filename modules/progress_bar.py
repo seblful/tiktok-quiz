@@ -51,9 +51,6 @@ class ProgressBar:
         return self.__inner_rect
 
     def value_to_rgb(self, value: float) -> Tuple[int, int, int]:
-        # # Clamp the value to the range 0.0-1.0
-        # value = max(0.0, min(1.0, value))
-
         # Calculate the red and green components
         red = int(value * 255)
         green = int((1 - value) * 255)
@@ -69,15 +66,22 @@ class ProgressBar:
         progress = round(current_time / total_time, 3)
         color = self.value_to_rgb(progress)
 
-        # Rectangle
-        rect_width = self.inner_rect.width * (1-progress)
+        # Calculate the width of the progress bar
+        rect_width = int(self.inner_rect.width * (1 - progress))
         rect_height = self.inner_rect.height
-        rect = pygame.Rect(self.inner_rect.left,
-                           self.inner_rect.top, rect_width, rect_height)
 
-        # Draw rectangle
-        pygame.draw.rect(screen, color, rect,
+        # Create a surface for the progress bar with per-pixel alpha
+        progress_surface = pygame.Surface(
+            (self.inner_rect.width, rect_height), pygame.SRCALPHA)
+
+        # Draw the full rounded rectangle on this surface
+        pygame.draw.rect(progress_surface, color,
+                         progress_surface.get_rect(),
                          border_radius=self.rect_border_radius)
+
+        # Blit only the part of the progress bar we need onto the screen
+        screen.blit(progress_surface, (self.inner_rect.left, self.inner_rect.top),
+                    area=pygame.Rect(0, 0, rect_width, rect_height))
 
     def render(self,
                screen: pygame.Surface,
