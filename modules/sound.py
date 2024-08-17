@@ -37,7 +37,7 @@ class SoundMaker:
             self.effect_played[self.effect_types.index('answer')] = True
 
         elif self.effect_played[self.effect_types.index('tick')] is False and effect_type == "tick":
-            self.effects_ch.play(self.ticking_sound)
+            self.effects_ch.play(self.ticking_sound, loops=-1)
             self.effect_played[self.effect_types.index('tick')] = True
 
     def play_music(self) -> None:

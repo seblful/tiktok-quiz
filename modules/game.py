@@ -20,7 +20,7 @@ class GameCreator:
 
         # Game modes
         self.game_modes = ("question", "answer")
-        self.mode_durations = (3, 2)
+        self.mode_durations = (60, 5)
         self.mode_index = 0
         self.current_mode = self.game_modes[self.mode_index]
         self.mode_start_time = 0  # Track start time of current mode
@@ -75,6 +75,14 @@ class GameCreator:
 
         return elapsed_time
 
+    def is_run_out_question_time(self,
+                                 elapsed_time: float,
+                                 remain_time_ratio: float = 0.2) -> bool:
+        if self.current_mode == "question" and elapsed_time >= (1-remain_time_ratio) * self.mode_durations[0]:
+            return True
+
+        return False
+
     def next_question(self) -> None:
         # Update color of the background
         self.background.update_color()
@@ -112,10 +120,14 @@ class GameCreator:
                 self.progress_bar.render(
                     self.screen, elapsed_time, self.mode_durations[self.mode_index])
 
-            # Show answer
+            # Show and sound answer
             if self.current_mode == "answer":
                 self.quiz_handler.show_answer(self.screen)
                 self.sound_maker.make_effect(effect_type="answer")
+
+            # Play ticking
+            if self.is_run_out_question_time(elapsed_time):
+                self.sound_maker.make_effect(effect_type="tick")
 
             # Flip display
             pygame.display.flip()
