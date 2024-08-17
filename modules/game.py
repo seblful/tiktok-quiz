@@ -11,7 +11,7 @@ class GameCreator:
                  json_dir: str,
                  source_dir: str,
                  screen_size: Tuple[int, int] = (360, 640),
-                 fps: int = 60) -> None:
+                 fps: int = 120) -> None:
         # Paths
         self.json_dir = json_dir
         self.source_dir = source_dir

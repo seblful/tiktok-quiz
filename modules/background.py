@@ -140,7 +140,7 @@ class Shape:
                  base_image: pygame.Surface,
                  base_color: Tuple[int, int, int],
                  size: int,
-                 speed: float = 2) -> None:
+                 speed: float = 1) -> None:
 
         # Coordinates
         self.x = x
