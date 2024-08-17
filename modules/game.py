@@ -105,6 +105,10 @@ class GameCreator:
                 self.progress_bar.render(
                     self.screen, elapsed_time, self.mode_durations[self.mode_index])
 
+            # Show answer
+            if self.current_mode == "answer":
+                self.quiz_handler.show_answer(self.screen)
+
             # Flip display
             pygame.display.flip()
 
