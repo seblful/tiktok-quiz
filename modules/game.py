@@ -4,6 +4,7 @@ import pygame
 from .quiz import QuizHandler
 from .background import Background, Mention
 from .progress_bar import ProgressBar
+from .sound import SoundMaker
 
 
 class GameCreator:
@@ -48,6 +49,9 @@ class GameCreator:
         # Progress bar
         self.progress_bar = ProgressBar(screen_size=screen_size)
 
+        # Sound
+        self.sound_maker = SoundMaker(source_dir=source_dir)
+
         # Running
         self.running = True
 
@@ -76,6 +80,9 @@ class GameCreator:
         self.background.update_color()
         # Update question
         self.quiz_handler.update_quiz()
+        # Change was played effect flag
+        self.sound_maker.effect_played = [
+            False for _ in range(len(self.sound_maker.effect_played))]
 
     def run(self) -> None:
         # Initialize start time
@@ -108,6 +115,7 @@ class GameCreator:
             # Show answer
             if self.current_mode == "answer":
                 self.quiz_handler.show_answer(self.screen)
+                self.sound_maker.make_effect(effect_type="answer")
 
             # Flip display
             pygame.display.flip()
