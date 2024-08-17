@@ -20,7 +20,7 @@ class GameCreator:
 
         # Game modes
         self.game_modes = ("question", "answer")
-        self.mode_durations = (60, 5)
+        self.mode_durations = (140, 40)
         self.mode_index = 0
         self.current_mode = self.game_modes[self.mode_index]
         self.mode_start_time = 0  # Track start time of current mode
@@ -88,9 +88,8 @@ class GameCreator:
         self.background.update_color()
         # Update question
         self.quiz_handler.update_quiz()
-        # Change was played effect flag
-        self.sound_maker.effect_played = [
-            False for _ in range(len(self.sound_maker.effect_played))]
+        # Update sounds
+        self.sound_maker.update_sounds()
 
     def run(self) -> None:
         # Initialize start time
@@ -128,6 +127,9 @@ class GameCreator:
             # Play ticking
             if self.is_run_out_question_time(elapsed_time):
                 self.sound_maker.make_effect(effect_type="tick")
+
+            # Play music
+            self.sound_maker.play_music()
 
             # Flip display
             pygame.display.flip()
