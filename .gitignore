@@ -5,6 +5,9 @@ draft*.ipynb
 # Data
 data
 
+# Sounds
+source/sounds
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
