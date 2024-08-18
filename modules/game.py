@@ -18,9 +18,13 @@ class GameCreator:
         self.source_dir = source_dir
         self.font_dir = os.path.join(source_dir, "fonts")
 
+        # Init font, mixer
+        pygame.font.init()
+        pygame.mixer.init()
+
         # Game modes
         self.game_modes = ("question", "answer")
-        self.mode_durations = (140, 40)
+        self.mode_durations = (20, 5)
         self.mode_index = 0
         self.current_mode = self.game_modes[self.mode_index]
         self.mode_start_time = 0  # Track start time of current mode
@@ -35,7 +39,6 @@ class GameCreator:
                                      screen_size=screen_size)
 
         # Text
-        pygame.font.init()
         self.mention = Mention(screen_size=screen_size,
                                font_dir=os.path.join(source_dir, "fonts"),
                                position="horizontal")
@@ -44,6 +47,7 @@ class GameCreator:
         self.quiz_handler = QuizHandler(json_dir=json_dir,
                                         font_dir=os.path.join(
                                             source_dir, "fonts"),
+                                        source_dir=source_dir,
                                         screen_size=screen_size)
 
         # Progress bar

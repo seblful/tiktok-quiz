@@ -1,13 +1,12 @@
-from typing import Tuple
-from typing import List, Tuple
 from typing import Tuple, List, Dict
 
 import os
 import json
-import math
 import random
 
 import pygame
+
+from .sound import VoiceMaker
 
 
 class QuizGetter:
@@ -58,6 +57,7 @@ class QuizHandler:
     def __init__(self,
                  json_dir: str,
                  font_dir: str,
+                 source_dir: str,
                  screen_size: Tuple[int, int],
                  question_color: Tuple[int, int, int] = (255, 255, 255),
                  answer_color: Tuple[int, int, int] = (0, 0, 0),
@@ -82,15 +82,22 @@ class QuizHandler:
                                               font_path=self.font_path,
                                               color=answer_color)
 
+        # Voice
+        self.voice_maker = VoiceMaker(source_dir=source_dir)
+
         # Screen
         self.screen_size = screen_size
 
     def render(self, screen: pygame.Surface) -> None:
         self.question_handler.render(screen)
         self.answers_handler.render(screen)
+        self.voice_maker.make_voice(
+            "q_and_a", self.question_handler.question, self.answers_handler.answers)
 
-    def show_answer(self, screen: pygame.Surface):
+    def show_answer(self, screen: pygame.Surface) -> None:
         self.answers_handler.show_answer(screen)
+        self.voice_maker.make_voice(
+            "right_answer", self.answers_handler.answers[self.answers_handler.correct_idx])
 
     def update_quiz(self) -> None:
         self.quiz = self.quiz_getter.get_random_question(q_type="multiple")

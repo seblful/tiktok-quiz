@@ -12,9 +12,6 @@ class SoundMaker:
         self.music_dir = os.path.join(self.sounds_dir, "music")
         self.effects_dir = os.path.join(self.sounds_dir, "effects")
 
-        # Init mixer
-        mixer.init()
-
         # Effect types
         self.effect_types = ["tick", "answer"]
         self.effect_played = [False, False]
@@ -55,10 +52,45 @@ class SoundMaker:
             self.effects_ch.play(self.ticking_sound, loops=-1)
             self.effect_played[self.effect_types.index('tick')] = True
 
-    def play_music(self, volume: float = 0.7) -> None:
+    def play_music(self, volume: float = 0.5) -> None:
         if self.music_played is False:
             mixer.music.load(os.path.join(
                 self.music_dir, self.music_path))
             mixer.music.set_volume(volume)
             mixer.music.play(-1)
             self.music_played = True
+
+
+class VoiceMaker:
+    def __init__(self, source_dir: str) -> None:
+        # Paths
+        self.sounds_dir = os.path.join(source_dir, "sounds")
+        self.voice_dir = os.path.join(self.sounds_dir, "voices")
+
+        # Voice
+        self.voice = "en-US-AriaNeural"
+        self.voice_types = ["q_and_a", "right_answer"]
+        self.text_created = [False, False]
+        self.voice_played = [False, False]
+        self.create_channel()
+
+    def create_channel(self) -> None:
+        self.effects_ch = mixer.Channel(1)
+
+    def create_voice(self, voice_type: str, *args) -> None:
+        if self.text_created[self.voice_types.index('q_and_a')] is False and voice_type == "q_and_a":
+            # Retrieve question and answers
+            question, answers = args
+            answers = answers.copy()
+
+            # Create text
+            answers.insert(-1, "or")
+            text = question + " " + " ".join(answers)
+
+        elif voice_type == "right_answer":
+            text = args[0]
+
+    def make_voice(self, voice_type: str, *args):
+        assert voice_type in self.voice_types, "Voice type should be one of ['q_and_a', 'right_answer']."
+
+        self.create_voice(voice_type, *args)
