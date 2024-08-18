@@ -104,6 +104,7 @@ class QuizHandler:
         self.question_handler.update_question(self.quiz['question'])
         self.answers_handler.update_answers(
             self.quiz["correct_answer"], self.quiz["incorrect_answers"])
+        self.voice_maker.update_voices()
 
 
 class QuestionHandler:
@@ -191,7 +192,7 @@ class QuestionHandler:
             x += word_width + self.space_width
 
     def render(self, screen: pygame.Surface) -> None:
-        self.draw_rect(screen)
+        # self.draw_rect(screen)
         self.render_words(screen)
 
     def update_question(self, new_question: str) -> None:
@@ -286,8 +287,8 @@ class AnswersHandler:
         screen.blit(letter, letter_rect)
 
     def draw(self, screen: pygame.Surface) -> None:
-        # Draw main rect
-        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+        # # Draw main rect
+        # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
         # Draw answers rect and circles
         for i in range(len(self.answers)):

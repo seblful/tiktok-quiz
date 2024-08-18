@@ -33,15 +33,6 @@ class SoundMaker:
 
         self.effects_ch = mixer.Channel(0)
 
-    def update_sounds(self) -> None:
-        # Change effect played flag
-        self.effect_played = [
-            False for _ in range(len(self.effect_played))]
-
-        # Change music played flag and choose new music file
-        self.music_played = False
-        self.music_path = random.choice(self.music_listdir)
-
     def make_effect(self, effect_type: str) -> None:
         assert effect_type in self.effect_types, "Effect type should be one of ['tick', 'answer']."
 
@@ -53,13 +44,22 @@ class SoundMaker:
             self.effects_ch.play(self.ticking_sound, loops=-1)
             self.effect_played[self.effect_types.index('tick')] = True
 
-    def play_music(self, volume: float = 0.5) -> None:
+    def play_music(self, volume: float = 0.4) -> None:
         if self.music_played is False:
             mixer.music.load(os.path.join(
                 self.music_dir, self.music_path))
             mixer.music.set_volume(volume)
             mixer.music.play(-1)
             self.music_played = True
+
+    def update_sounds(self) -> None:
+        # Change effect played flag
+        self.effect_played = [
+            False for _ in range(len(self.effect_played))]
+
+        # Change music played flag and choose new music file
+        self.music_played = False
+        self.music_path = random.choice(self.music_listdir)
 
 
 class VoiceMaker:
@@ -90,8 +90,8 @@ class VoiceMaker:
             answers = answers.copy()
 
             # Create text
-            answers.insert(-1, "or")
-            text = question + ". " + " ".join(answers)
+            text = question + "\n" + "\n".join(answers)
+
             # Create voice
             communicate = edge_tts.Communicate(text, self.voice, rate="-10%")
             communicate.stream_sync()
@@ -126,3 +126,9 @@ class VoiceMaker:
             right_answer_sound = mixer.Sound(self.right_answer_path)
             self.voice_ch.play(right_answer_sound)
             self.voice_played[self.voice_types.index('right_answer')] = True
+
+    def update_voices(self):
+        self.text_created = [
+            False for _ in range(len(self.text_created))]
+        self.voice_played = [
+            False for _ in range(len(self.voice_played))]
