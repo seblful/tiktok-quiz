@@ -2,6 +2,7 @@ import os
 import random
 
 from pygame import mixer
+import edge_tts
 
 
 class SoundMaker:
@@ -67,6 +68,10 @@ class VoiceMaker:
         self.sounds_dir = os.path.join(source_dir, "sounds")
         self.voice_dir = os.path.join(self.sounds_dir, "voices")
 
+        self.q_and_a_path = os.path.join(self.voice_dir, "q_and_a.mp3")
+        self.right_answer_path = os.path.join(
+            self.voice_dir, "right_answer.mp3")
+
         # Voice
         self.voice = "en-US-AriaNeural"
         self.voice_types = ["q_and_a", "right_answer"]
@@ -75,9 +80,10 @@ class VoiceMaker:
         self.create_channel()
 
     def create_channel(self) -> None:
-        self.effects_ch = mixer.Channel(1)
+        self.voice_ch = mixer.Channel(1)
 
     def create_voice(self, voice_type: str, *args) -> None:
+        # Retrieve text from question and answers
         if self.text_created[self.voice_types.index('q_and_a')] is False and voice_type == "q_and_a":
             # Retrieve question and answers
             question, answers = args
@@ -85,12 +91,38 @@ class VoiceMaker:
 
             # Create text
             answers.insert(-1, "or")
-            text = question + " " + " ".join(answers)
+            text = question + ". " + " ".join(answers)
+            # Create voice
+            communicate = edge_tts.Communicate(text, self.voice, rate="-10%")
+            communicate.stream_sync()
+            communicate.save_sync(self.q_and_a_path)
 
-        elif voice_type == "right_answer":
+            # Change flag
+            self.text_created[self.voice_types.index('q_and_a')] = True
+
+        elif self.text_created[self.voice_types.index('right_answer')] is False and voice_type == "right_answer":
             text = args[0]
+            # Create voice
+            communicate = edge_tts.Communicate(text, self.voice)
+            communicate.stream_sync()
+            communicate.save_sync(self.right_answer_path)
 
-    def make_voice(self, voice_type: str, *args):
+            # Change flag
+            self.text_created[self.voice_types.index('right_answer')] = True
+
+    def make_voice(self, voice_type: str, *args, volume=1) -> None:
         assert voice_type in self.voice_types, "Voice type should be one of ['q_and_a', 'right_answer']."
 
+        # Create voice file
         self.create_voice(voice_type, *args)
+
+        # Play voice file
+        if self.voice_played[self.voice_types.index('q_and_a')] is False and voice_type == "q_and_a":
+            q_and_a_sound = mixer.Sound(self.q_and_a_path)
+            self.voice_ch.play(q_and_a_sound)
+            self.voice_played[self.voice_types.index('q_and_a')] = True
+
+        elif self.voice_played[self.voice_types.index('right_answer')] is False and voice_type == "right_answer":
+            right_answer_sound = mixer.Sound(self.right_answer_path)
+            self.voice_ch.play(right_answer_sound)
+            self.voice_played[self.voice_types.index('right_answer')] = True
