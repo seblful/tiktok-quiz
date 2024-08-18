@@ -24,7 +24,7 @@ class GameCreator:
 
         # Game modes
         self.game_modes = ("question", "answer")
-        self.mode_durations = (20, 5)
+        self.mode_durations = (40, 10)
         self.mode_index = 0
         self.current_mode = self.game_modes[self.mode_index]
         self.mode_start_time = 0  # Track start time of current mode
