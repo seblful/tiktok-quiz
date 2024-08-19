@@ -2,7 +2,7 @@ from typing import Tuple, List
 import os
 import pygame
 from .quiz import QuizHandler
-from .background import Background, Mention
+from .background import Background, Mention, GiftLegend
 from .progress_bar import ProgressBar
 from .sound import SoundMaker
 
@@ -42,6 +42,10 @@ class GameCreator:
         self.mention = Mention(screen_size=screen_size,
                                font_dir=os.path.join(source_dir, "fonts"),
                                position="horizontal")
+
+        # Gifts legend
+        self.gift_legend = GiftLegend(screen_size=screen_size,
+                                      source_dir=source_dir)
 
         # Quiz
         self.quiz_handler = QuizHandler(json_dir=json_dir,
@@ -108,6 +112,9 @@ class GameCreator:
 
             # Mention
             self.mention.render(self.screen)
+
+            # Gifts legend
+            self.gift_legend.render(self.screen)
 
             # Render quiz
             self.quiz_handler.render(self.screen)
