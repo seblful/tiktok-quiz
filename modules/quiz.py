@@ -227,7 +227,7 @@ class AnswersHandler:
         self.text_margin = 0.13
         self.__rect = None
 
-        self.letter_size = 40
+        self.letter_size = 50
         self.letter_color = (255, 255, 255)
         self.letters = ['A', 'B', 'C', 'D']
 
