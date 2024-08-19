@@ -125,7 +125,7 @@ class QuestionHandler:
         self.font_path = font_path
         self.color = color
 
-        self.width_margin = 0.05
+        self.width_margin = 0.07
         self.height_margin = 0.1
         self.__rect = None
 
