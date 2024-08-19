@@ -14,25 +14,34 @@ class GiftLegend:
         # Paths
         self.font_dir = os.path.join(source_dir, "fonts")
         self.gifts_dir = os.path.join(source_dir, "gifts")
+        self.gifts_listdir = os.listdir(self.gifts_dir)
 
         # Screen
         self.width, self.height = screen_size
 
-        # Letters and font
-        self.letters = ['A', 'B', 'C', 'D']
-        self.letter_size = 40
-        self.font = pygame.font.Font(
-            os.path.join(self.font_dir, font_name), self.letter_size)
-
         # Rect
-        self.width_margin = 0.06
+        self.width_margin = 0
         self.height_margin = 0.875
         self.rect_height = 0.07
         self.rect_color = (0, 0, 0, 128)
         self.__rect = None
         self.create_rect_surface()
 
-    @property
+        # Letters and font
+        self.letters = ['A', 'B', 'C', 'D']
+        self.letter_size = 40
+        self.letter_color = (255, 255, 255)
+        self.font = pygame.font.Font(
+            os.path.join(self.font_dir, font_name), self.letter_size)
+
+        # Gifts and letters dict
+        self.gifts = [os.path.splitext(i)[0] for i in self.gifts_listdir]
+        self.legend_dict = {k: v for k, v in zip(self.letters, self.gifts)}
+
+        # Load images to dict
+        self.load_images()
+
+    @ property
     def rect(self) -> pygame.Rect:
         if self.__rect is None:
             rect_width = self.width - (2 * self.width_margin * self.width)
@@ -47,9 +56,55 @@ class GiftLegend:
             (self.rect.width, self.rect.height), flags=pygame.SRCALPHA)
         self.rect_surface.fill(self.rect_color)
 
-    def render(self, screen: pygame.Surface) -> None:
+    def load_images(self) -> None:
+        images = []
+        for image_name in self.gifts_listdir:
+            # Load and scale image
+            image = pygame.image.load(os.path.join(self.gifts_dir, image_name))
+            image = pygame.transform.scale(
+                image, (int(self.rect.height * 0.9), int(self.rect.height * 0.9)))
+            print(image.get_width(), image.get_height())
+            images.append(image)
 
+        # Create dict with letters
+        self.images_dict = {k: v for k, v in zip(self.letters, images)}
+
+    def draw_legend(self, screen: pygame.Surface) -> None:
+        # Calculate the total width of all items (letter + image)
+        total_items_width = sum(self.font.size(
+            letter)[0] + self.images_dict[letter].get_width() for letter in self.letters)
+
+        # Calculate the margin between items
+        total_margin = self.rect.width - total_items_width
+        # +1 for the margin at the start
+        margin = total_margin / (len(self.letters) + 1)
+
+        x = self.rect.left + margin  # Start with a margin
+
+        for letter in self.letters:
+            # Draw letter
+            letter_surface = self.font.render(letter, True, self.letter_color)
+            letter_rect = letter_surface.get_rect(
+                midleft=(x, self.rect.centery))
+            screen.blit(letter_surface, letter_rect)
+
+            # Move x to the right of the letter
+            x += letter_rect.width
+
+            # Draw image
+            image = self.images_dict[letter]
+            image_rect = image.get_rect(midleft=(x, self.rect.centery))
+            screen.blit(image, image_rect)
+
+            # Move x to the right of the image and add margin
+            x += image_rect.width + margin
+
+    def render(self, screen: pygame.Surface) -> None:
+        # Draw transparent surface
         screen.blit(self.rect_surface, (self.rect.topleft))
+
+        # Draw legend
+        self.draw_legend(screen)
 
 
 class Mention:
@@ -204,29 +259,29 @@ class Shape:
         self.size = size
         self.speed = speed
 
-    @property
+    @ property
     def color(self) -> Tuple[int, int, int]:
         if self.__color is None:
             self.__color = self.increase_brightness(self.base_color)
 
         return self.__color
 
-    @color.setter
+    @ color.setter
     def color(self, value: Tuple[int, int, int]) -> None:
         self.__color = self.increase_brightness(value)
 
-    @property
+    @ property
     def image(self):
         if self.__image is None:
             self.__image = self.update_image_color(self.base_image, self.color)
 
         return self.__image
 
-    @image.setter
+    @ image.setter
     def image(self, value) -> None:
         self.__image = self.update_image_color(value, self.color)
 
-    @staticmethod
+    @ staticmethod
     def update_image_color(image: pygame.Surface,
                            color: Tuple[int, int, int]) -> pygame.Surface:
         # Get the size of the image
@@ -252,7 +307,7 @@ class Shape:
 
         return new_image
 
-    @staticmethod
+    @ staticmethod
     def increase_brightness(color: Tuple[int, int, int],
                             factor: float = 1.2) -> Tuple[int, int, int]:
         return tuple(min(255, int(c * factor)) for c in color)
