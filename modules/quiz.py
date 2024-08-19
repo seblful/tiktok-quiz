@@ -137,7 +137,7 @@ class QuestionHandler:
     def rect(self) -> pygame.Rect:
         if self.__rect is None:
             rect_width = self.width - (self.width_margin * 2 * self.width)
-            rect_height = 0.3 * self.height
+            rect_height = 0.28 * self.height
             self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
                                       rect_width, rect_height)
         return self.__rect
@@ -221,7 +221,7 @@ class AnswersHandler:
         self.color = color
 
         self.width_margin = 0.09
-        self.height_margin = 0.41
+        self.height_margin = 0.37
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
         self.text_margin = 0.13
