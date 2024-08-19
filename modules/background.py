@@ -16,95 +16,86 @@ class GiftLegend:
         self.gifts_dir = os.path.join(source_dir, "gifts")
         self.gifts_listdir = os.listdir(self.gifts_dir)
 
-        # Screen
         self.width, self.height = screen_size
 
-        # Rect
+        self.setup_rect()
+        self.setup_font(font_name)
+        self.setup_legend()
+        self.load_images()
+        self.calculate_legend_positions()
+
+    def setup_rect(self) -> None:
         self.width_margin = 0
         self.height_margin = 0.875
         self.rect_height = 0.07
         self.rect_color = (0, 0, 0, 128)
-        self.__rect = None
-        self.create_rect_surface()
 
-        # Letters and font
-        self.letters = ['A', 'B', 'C', 'D']
-        self.letter_size = 40
-        self.letter_color = (255, 255, 255)
-        self.font = pygame.font.Font(
-            os.path.join(self.font_dir, font_name), self.letter_size)
+        rect_width = self.width - (2 * self.width_margin * self.width)
+        rect_height = self.rect_height * self.height
+        self.rect = pygame.Rect(
+            self.width * self.width_margin,
+            self.height * self.height_margin,
+            rect_width,
+            rect_height
+        )
 
-        # Gifts and letters dict
-        self.gifts = [os.path.splitext(i)[0] for i in self.gifts_listdir]
-        self.legend_dict = {k: v for k, v in zip(self.letters, self.gifts)}
-
-        # Load images to dict
-        self.load_images()
-
-    @ property
-    def rect(self) -> pygame.Rect:
-        if self.__rect is None:
-            rect_width = self.width - (2 * self.width_margin * self.width)
-            rect_height = self.rect_height * self.height
-            self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
-                                      rect_width, rect_height)
-
-        return self.__rect
-
-    def create_rect_surface(self) -> None:
         self.rect_surface = pygame.Surface(
             (self.rect.width, self.rect.height), flags=pygame.SRCALPHA)
         self.rect_surface.fill(self.rect_color)
 
+    def setup_font(self, font_name: str) -> None:
+        self.letter_size = 40
+        self.letter_color = (255, 255, 255)
+        font_path = os.path.join(self.font_dir, font_name)
+        self.font = pygame.font.Font(font_path, self.letter_size)
+
+    def setup_legend(self) -> None:
+        self.letters = ['A', 'B', 'C', 'D']
+        self.gifts = [os.path.splitext(i)[0] for i in self.gifts_listdir]
+        self.legend_dict = dict(zip(self.letters, self.gifts))
+
     def load_images(self) -> None:
-        images = []
-        for image_name in self.gifts_listdir:
-            # Load and scale image
-            image = pygame.image.load(os.path.join(self.gifts_dir, image_name))
-            image = pygame.transform.scale(
-                image, (int(self.rect.height * 0.9), int(self.rect.height * 0.9)))
-            print(image.get_width(), image.get_height())
-            images.append(image)
+        self.images_dict = {}
+        for letter, image_name in zip(self.letters, self.gifts_listdir):
+            image_path = os.path.join(self.gifts_dir, image_name)
+            image = pygame.image.load(image_path)
+            scaled_height = int(self.rect.height * 0.9)
+            scaled_image = pygame.transform.scale(
+                image, (scaled_height, scaled_height))
+            self.images_dict[letter] = scaled_image
 
-        # Create dict with letters
-        self.images_dict = {k: v for k, v in zip(self.letters, images)}
-
-    def draw_legend(self, screen: pygame.Surface) -> None:
-        # Calculate the total width of all items (letter + image)
-        total_items_width = sum(self.font.size(
-            letter)[0] + self.images_dict[letter].get_width() for letter in self.letters)
-
-        # Calculate the margin between items
+    def calculate_legend_positions(self) -> None:
+        total_items_width = sum(
+            self.font.size(letter)[0] + self.images_dict[letter].get_width()
+            for letter in self.letters
+        )
         total_margin = self.rect.width - total_items_width
-        # +1 for the margin at the start
         margin = total_margin / (len(self.letters) + 1)
 
-        x = self.rect.left + margin  # Start with a margin
+        self.legend_positions = []
+        x = self.rect.left + margin
 
         for letter in self.letters:
-            # Draw letter
             letter_surface = self.font.render(letter, True, self.letter_color)
             letter_rect = letter_surface.get_rect(
                 midleft=(x, self.rect.centery))
-            screen.blit(letter_surface, letter_rect)
 
-            # Move x to the right of the letter
             x += letter_rect.width
 
-            # Draw image
             image = self.images_dict[letter]
             image_rect = image.get_rect(midleft=(x, self.rect.centery))
-            screen.blit(image, image_rect)
 
-            # Move x to the right of the image and add margin
+            self.legend_positions.append((letter_rect, image_rect))
+
             x += image_rect.width + margin
 
     def render(self, screen: pygame.Surface) -> None:
-        # Draw transparent surface
-        screen.blit(self.rect_surface, (self.rect.topleft))
+        screen.blit(self.rect_surface, self.rect.topleft)
 
-        # Draw legend
-        self.draw_legend(screen)
+        for letter, (letter_rect, image_rect) in zip(self.letters, self.legend_positions):
+            letter_surface = self.font.render(letter, True, self.letter_color)
+            screen.blit(letter_surface, letter_rect)
+            screen.blit(self.images_dict[letter], image_rect)
 
 
 class Mention:
