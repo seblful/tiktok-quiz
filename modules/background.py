@@ -6,6 +6,52 @@ import random
 import pygame
 
 
+class GiftLegend:
+    def __init__(self,
+                 screen_size: Tuple[int, int],
+                 source_dir: str,
+                 font_name: str = "Rubik-Medium.ttf") -> None:
+        # Paths
+        self.font_dir = os.path.join(source_dir, "fonts")
+        self.gifts_dir = os.path.join(source_dir, "gifts")
+
+        # Screen
+        self.width, self.height = screen_size
+
+        # Letters and font
+        self.letters = ['A', 'B', 'C', 'D']
+        self.letter_size = 40
+        self.font = pygame.font.Font(
+            os.path.join(self.font_dir, font_name), self.letter_size)
+
+        # Rect
+        self.width_margin = 0.06
+        self.height_margin = 0.875
+        self.rect_height = 0.07
+        self.rect_color = (0, 0, 0, 128)
+        self.__rect = None
+        self.create_rect_surface()
+
+    @property
+    def rect(self) -> pygame.Rect:
+        if self.__rect is None:
+            rect_width = self.width - (2 * self.width_margin * self.width)
+            rect_height = self.rect_height * self.height
+            self.__rect = pygame.Rect(self.width * self.width_margin, self.height * self.height_margin,
+                                      rect_width, rect_height)
+
+        return self.__rect
+
+    def create_rect_surface(self) -> None:
+        self.rect_surface = pygame.Surface(
+            (self.rect.width, self.rect.height), flags=pygame.SRCALPHA)
+        self.rect_surface.fill(self.rect_color)
+
+    def render(self, screen: pygame.Surface) -> None:
+
+        screen.blit(self.rect_surface, (self.rect.topleft))
+
+
 class Mention:
     def __init__(self,
                  screen_size: Tuple[int, int],
