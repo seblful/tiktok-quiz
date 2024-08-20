@@ -47,6 +47,9 @@ class GameCreator:
         self.gift_legend = GiftLegend(screen_size=screen_size,
                                       source_dir=source_dir)
 
+        # Counts of gifts
+        self.gifts_counts = {k: 0 for k in ["A", "B", "C", "D"]}
+
         # Quiz
         self.quiz_handler = QuizHandler(json_dir=json_dir,
                                         font_dir=os.path.join(
@@ -99,13 +102,32 @@ class GameCreator:
         # Update sounds
         self.sound_maker.update_sounds()
 
+    def parse_events(self) -> None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+
+            # Check for key down events
+            if event.type == pygame.KEYDOWN:
+                print(self.gifts_counts)
+                # 1 - A
+                if event.key == pygame.K_1:
+                    self.gifts_counts["A"] += 1
+                # 2 - B
+                if event.key == pygame.K_2:
+                    self.gifts_counts["B"] += 1
+                # 3 - C
+                if event.key == pygame.K_3:
+                    self.gifts_counts["C"] += 1
+                # 4 - D
+                if event.key == pygame.K_4:
+                    self.gifts_counts["D"] += 1
+
     def run(self) -> None:
         # Initialize start time
         self.mode_start_time = pygame.time.get_ticks()
         while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
+            self.parse_events()
 
             # Render background
             self.background.render(self.screen)
@@ -117,7 +139,7 @@ class GameCreator:
             self.gift_legend.render(self.screen)
 
             # Render quiz
-            self.quiz_handler.render(self.screen)
+            self.quiz_handler.render(self.screen, self.gifts_counts)
 
             # Get ticks
             ticks = pygame.time.get_ticks()
