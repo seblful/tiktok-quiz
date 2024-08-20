@@ -24,7 +24,7 @@ class GameCreator:
 
         # Game modes
         self.game_modes = ("question", "answer")
-        self.mode_durations = (40, 10)
+        self.mode_durations = (30, 10)
         self.mode_index = 0
         self.current_mode = self.game_modes[self.mode_index]
         self.mode_start_time = 0  # Track start time of current mode
@@ -48,7 +48,7 @@ class GameCreator:
                                       source_dir=source_dir)
 
         # Counts of gifts
-        self.gifts_counts = {k: 0 for k in ["A", "B", "C", "D"]}
+        self.gifts_counter = {k: 0 for k in range(4)}
 
         # Quiz
         self.quiz_handler = QuizHandler(json_dir=json_dir,
@@ -101,6 +101,8 @@ class GameCreator:
         self.quiz_handler.update_quiz()
         # Update sounds
         self.sound_maker.update_sounds()
+        # Reset gift counter
+        self.gifts_counter = {k: 0 for k in range(4)}
 
     def parse_events(self) -> None:
         for event in pygame.event.get():
@@ -109,19 +111,18 @@ class GameCreator:
 
             # Check for key down events
             if event.type == pygame.KEYDOWN:
-                print(self.gifts_counts)
                 # 1 - A
                 if event.key == pygame.K_1:
-                    self.gifts_counts["A"] += 1
+                    self.gifts_counter[0] += 1
                 # 2 - B
                 if event.key == pygame.K_2:
-                    self.gifts_counts["B"] += 1
+                    self.gifts_counter[1] += 1
                 # 3 - C
                 if event.key == pygame.K_3:
-                    self.gifts_counts["C"] += 1
+                    self.gifts_counter[2] += 1
                 # 4 - D
                 if event.key == pygame.K_4:
-                    self.gifts_counts["D"] += 1
+                    self.gifts_counter[3] += 1
 
     def run(self) -> None:
         # Initialize start time
@@ -139,7 +140,7 @@ class GameCreator:
             self.gift_legend.render(self.screen)
 
             # Render quiz
-            self.quiz_handler.render(self.screen, self.gifts_counts)
+            self.quiz_handler.render(self.screen, self.gifts_counter)
 
             # Get ticks
             ticks = pygame.time.get_ticks()

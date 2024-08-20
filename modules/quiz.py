@@ -221,11 +221,11 @@ class AnswersHandler:
         self.color = color
 
         # Rect
-        self.width_margin = 0.05
+        self.width_margin = 0.07
         self.height_margin = 0.37
         self.inter_w_margin = 0.05
         self.inter_h_margin = 0.05
-        self.text_margin = 0.13
+        self.text_margin = 0.14
         self.__rect = None
 
         # Letters
@@ -292,7 +292,6 @@ class AnswersHandler:
         if draw_rectangle is True:
             fill_ratio = gift_counter[i] / (sum(gift_counter.values()) + 1)
             fill_color = max(100, min(255, int(fill_ratio * 255) + 100))
-            print(self.counter_surface_color + (fill_color,))
             self.answer_surfaces[i].fill(
                 self.counter_surface_color + (fill_color,))
             pygame.draw.rect(self.answer_surfaces[i], (0, 255, 0, 255),
@@ -381,7 +380,7 @@ class AnswersHandler:
             # Draw numbers
             word_surface = self.counter_font.render(
                 str(count), True, self.counter_color, self.color)
-            coords = (self.answer_rects[k].right, self.answer_rects[k].top -
+            coords = (self.answer_rects[k].right + word_surface.get_width() / 3, self.answer_rects[k].top -
                       word_surface.get_height() / 2)
             screen.blit(
                 word_surface, coords)
