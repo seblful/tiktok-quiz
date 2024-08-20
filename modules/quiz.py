@@ -237,6 +237,7 @@ class AnswersHandler:
         self.counter_size = 20
         self.counter_font = pygame.font.Font(self.font_path, self.counter_size)
         self.counter_color = (255, 255, 255)
+        self.counter_surface_color = (90, 35, 40)
 
         self.update_answers(correct_answer, incorrect_answers)
 
@@ -256,6 +257,7 @@ class AnswersHandler:
 
     def setup_rects(self) -> None:
         self.answer_rects = []
+        self.answer_surfaces = []
         abs_inter_w_margin = self.inter_w_margin * self.rect.width
         abs_inter_h_margin = self.inter_h_margin * self.rect.height
 
@@ -266,21 +268,37 @@ class AnswersHandler:
         abs_h_margin = self.height * self.height_margin + abs_inter_h_margin
 
         for _ in self.answers:
+            # Create surfaces and rects
+            answer_surface = pygame.Surface(
+                (answer_width, answer_height), flags=pygame.SRCALPHA)
             answer_rect = pygame.Rect(self.width * self.width_margin + abs_inter_w_margin, abs_h_margin,
                                       answer_width, answer_height)
+
+            # Append surfaces and rect
+            self.answer_surfaces.append(answer_surface)
             self.answer_rects.append(answer_rect)
+
+            # Adjust margin
             abs_h_margin += answer_height + abs_inter_h_margin
 
-    def draw_answers(self, screen: pygame.Surface,
+    def draw_answers(self,
+                     screen: pygame.Surface,
                      i: int,
+                     gift_counter: Dict[int, int] = None,
                      color=(255, 0, 40),
                      draw_rectangle=True,
                      factor=1) -> None:
         # Answers rect
         if draw_rectangle is True:
-            pygame.draw.rect(screen, (255, 255, 255),
-                             self.answer_rects[i], 0,
+            fill_ratio = gift_counter[i] / (sum(gift_counter.values()) + 1)
+            fill_color = max(100, min(255, int(fill_ratio * 255) + 100))
+            print(self.counter_surface_color + (fill_color,))
+            self.answer_surfaces[i].fill(
+                self.counter_surface_color + (fill_color,))
+            pygame.draw.rect(self.answer_surfaces[i], (0, 255, 0, 255),
+                             self.answer_rects[i], width=0,
                              border_top_right_radius=30, border_bottom_right_radius=30)
+            screen.blit(self.answer_surfaces[i], self.answer_rects[i].topleft)
 
         # Circless
         pygame.draw.circle(screen, color,
@@ -293,13 +311,13 @@ class AnswersHandler:
         letter_rect = letter.get_rect(center=self.answer_rects[i].midleft)
         screen.blit(letter, letter_rect)
 
-    def draw(self, screen: pygame.Surface, gift_counter: Dict[str, int]) -> None:
+    def draw(self, screen: pygame.Surface, gift_counter: Dict[int, int]) -> None:
         # # Draw main rect
         # pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
         # Draw answers rect and circles
         for i in range(len(self.answers)):
-            self.draw_answers(screen, i)
+            self.draw_answers(screen, i, gift_counter=gift_counter)
 
     def setup_fonts(self) -> None:
         self.fonts = [self.create_font(answer, rect) for answer, rect in zip(
@@ -358,12 +376,12 @@ class AnswersHandler:
                 line_width += word_width + space_width
                 current_line_height = max(current_line_height, word_height)
 
-    def render_counter(self, screen: pygame.Surface, gift_counter: Dict[str, int]) -> None:
-        for i, count in enumerate(gift_counter.values()):
+    def render_counter(self, screen: pygame.Surface, gift_counter: Dict[int, int]) -> None:
+        for k, count in gift_counter.items():
             # Draw numbers
             word_surface = self.counter_font.render(
                 str(count), True, self.counter_color, self.color)
-            coords = (self.answer_rects[i].right, self.answer_rects[i].top -
+            coords = (self.answer_rects[k].right, self.answer_rects[k].top -
                       word_surface.get_height() / 2)
             screen.blit(
                 word_surface, coords)
@@ -387,7 +405,7 @@ class AnswersHandler:
         total_height += max_line_height
         return total_height
 
-    def render(self, screen: pygame.Surface, gift_counter: Dict[str, int]) -> None:
+    def render(self, screen: pygame.Surface, gift_counter: Dict[int, int]) -> None:
         self.draw(screen, gift_counter)
         self.render_words(screen)
         self.render_counter(screen, gift_counter)
