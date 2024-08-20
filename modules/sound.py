@@ -127,7 +127,7 @@ class VoiceMaker:
             self.voice_ch.play(right_answer_sound)
             self.voice_played[self.voice_types.index('right_answer')] = True
 
-    def update_voices(self):
+    def update_voices(self) -> None:
         self.text_created = [
             False for _ in range(len(self.text_created))]
         self.voice_played = [
