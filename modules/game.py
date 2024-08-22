@@ -1,6 +1,8 @@
 from typing import Tuple, List
 import os
+
 import pygame
+
 from .quiz import QuizHandler
 from .background import Background, Mention, GiftLegend
 from .progress_bar import ProgressBar

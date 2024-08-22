@@ -1,4 +1,5 @@
 import pyautogui
+
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import ConnectEvent, GiftEvent
 from TikTokLive.proto.custom_proto import ExtendedGiftStruct
