@@ -1,3 +1,4 @@
 pygame==2.6.0
 pyautogui==0.9.54
 edge-tts==6.1.12
+tiktoklive==6.0.9
